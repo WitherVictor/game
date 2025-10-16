@@ -1,4 +1,5 @@
 #include <ftxui/component/component.hpp>
+#include <ftxui/component/component_options.hpp>
 #include <ftxui/component/event.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
@@ -10,9 +11,10 @@
 #include "ui/element/resource_bar.hpp"
 
 using namespace ftxui;
+using namespace std::chrono_literals;
 
 int main() {
-    auto screen = ftxui::ScreenInteractive::TerminalOutput();
+    auto screen = ftxui::ScreenInteractive::FitComponent();
 
     auto status_progress_bar = Renderer([&] {
         auto power_state = data::power.get_state();
@@ -45,6 +47,14 @@ int main() {
             screen.PostEvent(Event::Custom);
         }
     }};
+
+    int tab_selector{};
+    std::vector<std::string> tab_titles{"Electrical Room", "Not Available"};
+
+    auto option = MenuOption::HorizontalAnimated();
+    option.underline.SetAnimationDuration(250ms);
+
+    components->Add(Menu(&tab_titles, &tab_selector, option));
 
     screen.Loop(components);
 }
