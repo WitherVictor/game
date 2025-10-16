@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "src/data.hpp"
+#include "ui/element/resource_bar.hpp"
 
 using namespace ftxui;
 
@@ -16,13 +17,7 @@ int main() {
     auto power_progress_bar = Renderer([&] {
         auto state = data::power.get_state();
 
-        return hbox({
-            text("⚡"),
-            separator(),
-            gauge(static_cast<double>(state.current) / state.maximum) | size(ftxui::WIDTH, ftxui::EQUAL, 10) | color(Color::Yellow),
-            separator(),
-            text(std::format("({}/{})", state.current, state.maximum))
-        });
+        return ui::resource_bar("⚡", state.current, state.maximum, Color::Yellow, 15);
     });
 
     auto components = Container::Vertical({
