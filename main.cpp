@@ -19,8 +19,8 @@ int main() {
         auto stamina_state = data::stamina.get_state();
 
         return vbox({
-            ui::resource_bar("🔋", power_state.current, power_state.maximum, Color::Yellow, 15),
-            ui::resource_bar("⚡", stamina_state.current, stamina_state.maximum, Color::White, 15)
+            ui::resource_bar("🔋", power_state, Color::Yellow, 15),
+            ui::resource_bar("⚡", stamina_state, Color::White, 15)
         }) | border;
     });
 
@@ -28,7 +28,7 @@ int main() {
         if (data::stamina.try_comsume(10)) {
             data::power.try_recharge();
         }
-    });
+    }) | flex;
 
     auto components = Container::Vertical({
         status_progress_bar,

@@ -5,11 +5,15 @@
 
 #include <format>
 
+#include "../../src/resource_type.hpp"
+
 namespace ui {
     using namespace ftxui;
 
-    template <typename T>
-    Element resource_bar(const char* icon, T current, T maximum, Color progress_color, int length = 10) {
+    inline Element resource_bar(const char* icon, resource_type::state data_state, Color progress_color, int length = 10) {
+        auto current{data_state.current};
+        auto maximum{data_state.maximum};
+
         return hbox({
             text(icon),
             separator(),
