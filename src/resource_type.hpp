@@ -3,7 +3,7 @@
 #include <atomic>
 #include <cstddef>
 
-class power_meter {
+class resource_type {
 public:
     using value_type = std::size_t;
     using difference_type = long long;
