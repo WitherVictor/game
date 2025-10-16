@@ -14,21 +14,32 @@ using namespace ftxui;
 int main() {
     auto screen = ftxui::ScreenInteractive::TerminalOutput();
 
-    auto power_progress_bar = Renderer([&] {
-        auto state = data::power.get_state();
+    auto status_progress_bar = Renderer([&] {
+        auto power_state = data::power.get_state();
+        auto stamina_state = data::stamina.get_state();
 
-        return ui::resource_bar("⚡", state.current, state.maximum, Color::Yellow, 15);
+        return vbox({
+            ui::resource_bar("🔋", power_state.current, power_state.maximum, Color::Yellow, 15),
+            ui::resource_bar("⚡", stamina_state.current, stamina_state.maximum, Color::White, 15)
+        }) | border;
+    });
+
+    auto generate_power_button = Button("Generate Power", [] {
+        if (data::stamina.try_comsume(10)) {
+            data::power.try_recharge();
+        }
     });
 
     auto components = Container::Vertical({
-        power_progress_bar,
+        status_progress_bar,
+        generate_power_button
     });
 
     std::jthread generate_power_thread{[&] {
         using namespace std::chrono_literals;
 
         while (true) {
-            data::power.try_recharge();
+            data::stamina.try_recharge();
 
             std::this_thread::sleep_for(1s);
             screen.PostEvent(Event::Custom);

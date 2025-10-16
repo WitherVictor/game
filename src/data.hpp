@@ -1,7 +1,8 @@
 #pragma once
 
-#include "power.hpp"
+#include "resource_type.hpp"
 
 namespace data {
-    inline power_meter power{};
+    inline resource_type power{};
+    inline resource_type stamina{};
 }
