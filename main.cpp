@@ -1,5 +1,6 @@
-#include <iostream>
+#include "src/view/view.hpp"
 
-int main(int, char**){
-    std::cout << "Hello, from game!\n";
+int main() {
+    view app_view{};
+    app_view.run();
 }

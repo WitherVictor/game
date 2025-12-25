@@ -16,5 +16,20 @@ FetchContent_MakeAvailable(ftxui)
 # 添加目标
 add_executable(game main.cpp)
 
+# 引入源文件
+target_sources(game PRIVATE src)
+
 # 设置标准为 C++20
-target_compile_features(game PUBLIC cxx_std_20)
+target_compile_options(game
+    PRIVATE -std=c++20
+    PRIVATE -Wall
+    PRIVATE -Wextra
+    PRIVATE -pedantic
+)
+
+# 链接 FTXUI 的库
+target_link_libraries(game
+    PRIVATE ftxui::screen
+    PRIVATE ftxui::dom
+    PRIVATE ftxui::component
+)
