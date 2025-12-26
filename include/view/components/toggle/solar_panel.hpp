@@ -1,15 +1,16 @@
 #pragma once
 
-#include <ftxui/component/component_base.hpp>
 #include <vector>
 #include <string>
 
+#include <ftxui/component/component_base.hpp>
 #include <ftxui/component/component.hpp>
 
 namespace components {
-class solar_panel_toggle {
+namespace toggle {
+class solar_panel {
 public:
-    solar_panel_toggle() {
+    solar_panel() {
         solar_toggle_ = ftxui::Toggle(solar_labels_, &solar_index_);
 
         component_ = ftxui::Renderer(solar_toggle_, [&] {
@@ -22,7 +23,7 @@ public:
     }
 
     static ftxui::Component component() {
-        static solar_panel_toggle toggle;
+        static solar_panel toggle;
         return toggle.component_;
     }
 
@@ -33,4 +34,5 @@ private:
     ftxui::Component component_;
     ftxui::Component solar_toggle_;
 };
+}
 }

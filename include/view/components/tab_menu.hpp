@@ -7,7 +7,7 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
 
-#include "solar_panel_toggle.hpp"
+#include "view/components/toggle/solar_panel.hpp"
 
 namespace page {
 inline ftxui::Component make_tab_menu() {
@@ -15,7 +15,7 @@ inline ftxui::Component make_tab_menu() {
     static std::vector<std::string> tab_label = {"发电室", "测试"};
 
     static auto menu = ftxui::Menu(&tab_label, &tab_index, ftxui::MenuOption::HorizontalAnimated());
-    static auto solar_panel = components::solar_panel_toggle::component();
+    static auto solar_panel = components::toggle::solar_panel::component();
 
     auto container = ftxui::Container::Vertical({
         menu,
