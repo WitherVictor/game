@@ -27,7 +27,7 @@ public:
     }
 
 private:
-    int solar_index_ = 0;
+    int solar_index_ = 1;
     std::vector<std::string> solar_labels_{"开", "关"};
 
     ftxui::Component component_;
