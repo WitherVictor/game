@@ -1,11 +1,13 @@
 #pragma once
 
-#include "solar_panel_toggle.hpp"
-#include <ftxui/component/component_options.hpp>
 #include <vector>
 #include <string>
 
+#include <ftxui/component/component_options.hpp>
 #include <ftxui/component/component.hpp>
+#include <ftxui/dom/elements.hpp>
+
+#include "solar_panel_toggle.hpp"
 
 namespace page {
 inline ftxui::Component make_tab_menu() {
