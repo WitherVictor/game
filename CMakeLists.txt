@@ -16,6 +16,11 @@ FetchContent_MakeAvailable(ftxui)
 # 添加目标
 add_executable(game main.cpp)
 
+target_include_directories(game
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 # 引入源文件
 target_sources(game PRIVATE src)
 
