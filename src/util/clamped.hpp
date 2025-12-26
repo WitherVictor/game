@@ -72,7 +72,6 @@ public:
     }
 private:
     T min_;
-    T max_;
-
     T now_;
+    T max_;
 };
