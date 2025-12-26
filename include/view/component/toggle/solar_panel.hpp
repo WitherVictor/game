@@ -6,7 +6,7 @@
 #include <ftxui/component/component_base.hpp>
 #include <ftxui/component/component.hpp>
 
-namespace components {
+namespace component {
 namespace toggle {
 class solar_panel {
 public:

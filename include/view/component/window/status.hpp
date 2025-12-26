@@ -3,11 +3,11 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
 
-#include "../../view_model/view_model.hpp"
-#include "status_bar.hpp"
+#include "view_model/view_model.hpp"
+#include "view/component/status_bar.hpp"
 
-namespace page {
-inline ftxui::Component make_status_page() {
+namespace window {
+inline ftxui::Component make_status() {
     return ftxui::Renderer([] {
         return ftxui::hbox({
             ftxui::vbox(

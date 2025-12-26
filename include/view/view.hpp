@@ -5,14 +5,14 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 
-#include "components/status_page.hpp"
-#include "components/tab_menu.hpp"
+#include "view/component/window/status.hpp"
+#include "view/component/window/tab_menu.hpp"
 
 class view {
 public:
     view() {
-        page_->Add(page::make_status_page());
-        page_->Add(page::make_tab_menu());
+        page_->Add(window::make_status());
+        page_->Add(window::make_tab_menu());
     }
 
     void run() {
