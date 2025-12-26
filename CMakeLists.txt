@@ -22,9 +22,9 @@ FetchContent_Declare(ftxui
 FetchContent_MakeAvailable(ftxui)
 
 # 添加目标
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
 
-target_include_directories(${PROJECT_NAME} PRIVATE include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # 设置标准为 C++20
 target_compile_options(${PROJECT_NAME}
@@ -39,3 +39,5 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE ftxui::dom
     PRIVATE ftxui::component
 )
+
+add_subdirectory(test)
