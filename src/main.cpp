@@ -1,4 +1,4 @@
-#include "src/view/view.hpp"
+#include "view/view.hpp"
 
 int main() {
     view app_view{};

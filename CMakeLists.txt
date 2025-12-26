@@ -14,15 +14,10 @@ FetchContent_Declare(ftxui
 FetchContent_MakeAvailable(ftxui)
 
 # 添加目标
-add_executable(game main.cpp)
+file(GLOB_RECURSE PROJECT_INCLUDE_DIRS include/*.hpp)
+add_executable(game src/main.cpp)
 
-target_include_directories(game
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-# 引入源文件
-target_sources(game PRIVATE src)
+target_include_directories(game PRIVATE include)
 
 # 设置标准为 C++20
 target_compile_options(game

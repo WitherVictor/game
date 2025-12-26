@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-#include <model/electricity.hpp>
+#include "model/electricity.hpp"
 
 namespace view_model {
 class electricity{
