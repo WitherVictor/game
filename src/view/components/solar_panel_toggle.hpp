@@ -21,7 +21,7 @@ public:
         });
     }
 
-    static ftxui::Component& component() {
+    static ftxui::Component component() {
         static solar_panel_toggle toggle;
         return toggle.component_;
     }

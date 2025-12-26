@@ -14,11 +14,19 @@ inline ftxui::Component make_tab_menu() {
     static int tab_index = 0;
     static std::vector<std::string> tab_label = {"发电室", "测试"};
 
-    return ftxui::Container::Vertical({
-        ftxui::Menu(&tab_label, &tab_index, ftxui::MenuOption::HorizontalAnimated()),
-        ftxui::Container::Tab({
-            components::solar_panel_toggle::component()
-        }, &tab_index)
+    static auto menu = ftxui::Menu(&tab_label, &tab_index, ftxui::MenuOption::HorizontalAnimated());
+    static auto solar_panel = components::solar_panel_toggle::component();
+
+    auto container = ftxui::Container::Vertical({
+        menu,
+        solar_panel
+    });
+
+    return ftxui::Renderer(container, [] {
+        return ftxui::vbox({
+            menu->Render(),
+            solar_panel->Render() | ftxui::border
+        });
     });
 }
 }
