@@ -25,8 +25,8 @@ inline ftxui::Component make_tab_menu() {
     return ftxui::Renderer(container, [] {
         return ftxui::vbox({
             menu->Render(),
-            solar_panel->Render() | ftxui::border
-        });
+            solar_panel->Render()
+        }) | ftxui::border;
     });
 }
 }
