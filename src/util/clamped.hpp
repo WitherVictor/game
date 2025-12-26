@@ -3,19 +3,19 @@
 template <typename T>
 class clamped {
 public:
-    clamped(T min, T now, T max)
-        : min{min}, now{now}, max{max} {}
+    clamped(T min_, T now_, T max_)
+        : min_{min_}, now_{now_}, max_{max_} {}
     
-    clamped(T min, T max)
-        : clamped{min, min, max} {}
+    clamped(T min_, T max_)
+        : clamped{min_, min_, max_} {}
 
     bool try_add(T delta) {
         if (delta < 0) {
             return false;
         }
 
-        if (max - delta >= now) {
-            now += delta;
+        if (max_ - delta >= now_) {
+            now_ += delta;
             return true;
         }
 
@@ -27,8 +27,8 @@ public:
             return false;
         }
 
-        if (now - min >= delta) {
-            now -= delta;
+        if (now_ - min_ >= delta) {
+            now_ -= delta;
             return true;
         }
 
@@ -40,10 +40,10 @@ public:
             return;
         }
 
-        if (max - now >= delta) {
-            now += delta;
+        if (max_ - now_ >= delta) {
+            now_ += delta;
         } else {
-            now = max;
+            now_ = max_;
         }
     }
 
@@ -52,27 +52,27 @@ public:
             return;
         }
 
-        if (now - min >= delta) {
-            now -= delta;
+        if (now_ - min_ >= delta) {
+            now_ -= delta;
         } else {
-            now = min;
+            now_ = min_;
         }
     }
 
-    const T get_now() const {
-        return now;
+    const T now() const {
+        return now_;
     }
 
-    const T get_min() const {
-        return min;
+    const T min() const {
+        return min_;
     }
 
-    const T get_max() const {
-        return max;
+    const T max() const {
+        return max_;
     }
 private:
-    T min;
-    T max;
+    T min_;
+    T max_;
 
-    T now;
+    T now_;
 };
