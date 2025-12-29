@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "util/clamped.hpp"
+#include "util/atomic_clamped.hpp"
 
 TEST(clamped, common) {
-    clamped value{0, 50, 100};
+    atomic_clamped value{0, 50, 100};
 
     EXPECT_TRUE(value.try_add(20));
     EXPECT_EQ(value.now(), 70);
@@ -13,7 +13,7 @@ TEST(clamped, common) {
 }
 
 TEST(clamped, try_bound) {
-    clamped value{0, 50, 100};
+    atomic_clamped value{0, 50, 100};
 
     EXPECT_FALSE(value.try_add(55));
     EXPECT_EQ(value.now(), 50);
@@ -23,7 +23,7 @@ TEST(clamped, try_bound) {
 }
 
 TEST(clamped, force_bound) {
-    clamped value{0, 50, 100};
+    atomic_clamped value{0, 50, 100};
 
     value.force_add(55);
     EXPECT_EQ(value.now(), 100);
