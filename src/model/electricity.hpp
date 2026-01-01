@@ -39,6 +39,11 @@ public:
         return solar_is_on;
     }
 
+    void update_solar_state(bool status) {
+        solar_is_on = status;
+        solar_cv_.notify_one();
+    }
+
     std::size_t min() const { return value_.min(); }
     std::size_t max() const { return value_.max(); }
     std::size_t now() const { return value_.now(); }
@@ -48,7 +53,7 @@ private:
     std::jthread solar_;
     std::condition_variable solar_cv_;
     std::mutex solar_mutex_;
-    std::atomic<bool> solar_is_on = true;
+    std::atomic<bool> solar_is_on = false;
 };
 }
 

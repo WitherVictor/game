@@ -1,6 +1,8 @@
 #pragma once
 
+#include "view_model/electricity.hpp"
 #include <ftxui/component/component.hpp>
+#include <ftxui/component/event.hpp>
 #include <ftxui/dom/elements.hpp>
 
 namespace view::page {
@@ -11,6 +13,13 @@ class generator_room {
 public:
     generator_room() {
         auto solar_toggle = Toggle(&solar_label, &solar_toggle_index_);
+        solar_toggle |= CatchEvent([this](Event) {
+            bool status = solar_toggle_index_ == 0;
+            view_model::electricity::update_solar_state(status);
+
+            return false;
+        });
+
         auto solar_selection = Renderer(solar_toggle, [solar_toggle] {
             return vbox({
                 hbox({ text("🛰️太阳能发电板："), solar_toggle->Render()})

@@ -17,5 +17,9 @@ public:
 
         return static_cast<double>(now_) / max_;
     }
+
+    static void update_solar_state(bool status) {
+        model::electricity.update_solar_state(status);
+    }
 };
 }
