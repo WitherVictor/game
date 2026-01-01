@@ -3,6 +3,8 @@
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_options.hpp>
 
+#include "page/generator_room.hpp"
+
 namespace view {
 
 using namespace ftxui;
@@ -10,8 +12,16 @@ using namespace ftxui;
 class tab {
 public:
     tab() {
-        component_ = Container::Vertical({});
-        component_->Add(make_tab_menu());
+        auto tab_menu = make_tab_menu();
+
+        auto pages = Container::Tab({
+            page::generator_room::component()
+        }, &tab_index_);
+
+        component_ = Container::Vertical({
+            tab_menu,
+            pages
+        });
     }
 
     static Component component() {
