@@ -4,12 +4,14 @@
 #include <ftxui/component/component.hpp>
 
 #include "view/status.hpp"
+#include "view/tab.hpp"
 
 class application {
 public:
     application() {
         main_page = ftxui::Container::Vertical({
-            view::status::component()
+            view::status::component(),
+            view::tab::component()
         });
     }
 

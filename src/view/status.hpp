@@ -21,7 +21,7 @@ public:
         component_->Add(electricity_bar);
     }
 
-    static ftxui::Component component() {
+    static Component component() {
         static status instance;
         return instance.component_;
     }
