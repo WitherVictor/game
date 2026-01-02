@@ -22,10 +22,12 @@ public:
 
             while (!token.stop_requested()) {
                 std::unique_lock lock{solar_mutex_};
-                solar_cv_.wait(lock, [this] { return is_on(); });
+                solar_cv_.wait(lock, [this, &token] { return is_on() || token.stop_requested(); });
 
                 std::this_thread::sleep_for(2.5s);
-                value_.try_add();
+
+                if (is_on())
+                    value_.try_add();   
             }
         });
     }
