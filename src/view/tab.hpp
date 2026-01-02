@@ -20,6 +20,7 @@ public:
 
         component_ = Container::Vertical({
             tab_menu,
+            Renderer([] { return text(""); }),
             pages
         });
     }

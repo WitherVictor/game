@@ -1,9 +1,10 @@
 #pragma once
 
-#include "view_model/electricity.hpp"
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/event.hpp>
 #include <ftxui/dom/elements.hpp>
+
+#include "view_model/electricity.hpp"
 
 namespace view::page {
 
