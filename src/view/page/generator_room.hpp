@@ -4,7 +4,7 @@
 #include <ftxui/component/event.hpp>
 #include <ftxui/dom/elements.hpp>
 
-#include "view_model/electricity.hpp"
+#include "../../view_model/electricity.hpp"
 
 namespace view::page {
 
