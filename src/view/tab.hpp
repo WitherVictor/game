@@ -39,7 +39,7 @@ private:
 
     int tab_index_;
     std::vector<std::string> tab_menu_label_ = {
-        "发电室", "采矿室"
+        "🔋发电室", "⛏️采矿室"
     };
 };
 
