@@ -42,7 +42,7 @@ public:
         return true;
     }
 
-    bool try_minus(T delta) {
+    bool try_minus(T delta = T{1}) {
         if (delta < 0) {
             return false;
         }
