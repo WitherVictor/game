@@ -20,8 +20,8 @@ public:
         return static_cast<double>(now_) / max_;
     }
 
-    static void set_miner_state(bool status) {
-        model::solar_to_iron.set_state(status);
+    static void set_mining_state(bool status) {
+        model::ore.set_mining_state(status);
     }
 };
 } // End of namespace view_model

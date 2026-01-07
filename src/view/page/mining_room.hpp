@@ -17,7 +17,7 @@ public:
         auto iron_toggle = Toggle(&iron_toggle_label_, &iron_toggle_index_);
         iron_toggle |= CatchEvent([this] (Event) {
             bool status = iron_toggle_index_ == 0;
-            view_model::ore::set_miner_state(status);
+            view_model::ore::set_mining_state(status);
 
             return false;
         });
