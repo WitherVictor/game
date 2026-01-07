@@ -1,9 +1,12 @@
 #pragma once
 
+// FTXUI
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/component_options.hpp>
 
+// 库头文件
 #include "page/generator_room.hpp"
+#include "page/mining_room.hpp"
 
 namespace view {
 
@@ -15,7 +18,8 @@ public:
         auto tab_menu = make_tab_menu();
 
         auto pages = Container::Tab({
-            page::generator_room::component()
+            page::generator_room::component(),
+            page::mining_room::component()
         }, &tab_index_);
 
         component_ = Container::Vertical({

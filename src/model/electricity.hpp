@@ -46,6 +46,10 @@ public:
         solar_cv_.notify_one();
     }
 
+    bool try_consume(std::size_t delta = 1) {
+        return value_.try_minus(delta);
+    }
+
     std::size_t min() const { return value_.min(); }
     std::size_t max() const { return value_.max(); }
     std::size_t now() const { return value_.now(); }
