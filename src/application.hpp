@@ -5,20 +5,23 @@
 
 #include "view/status.hpp"
 #include "view/tab.hpp"
+#include "screen.hpp"
 
 class application {
 public:
-    application() {
-        main_page = ftxui::Container::Vertical({
-            view::status::component(),
-            view::tab::component()
-        });
+    static application& instance() {
+        static application app;
+        return app;
     }
 
     void run() {
-        auto screen = ftxui::ScreenInteractive::TerminalOutput();
-        screen.Loop(main_page);
+        screen::instance().Loop(main_page_);
     }
 private:
-    ftxui::Component main_page;
+    application() = default;
+
+    ftxui::Component main_page_ = ftxui::Container::Vertical({
+        view::status::component(),
+        view::tab::component()
+    });
 };

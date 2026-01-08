@@ -23,7 +23,12 @@ public:
 
         auto solar_selection = Renderer(solar_toggle, [solar_toggle] {
             return vbox({
-                hbox({ text("🛰️太阳能发电板："), solar_toggle->Render()})
+                hbox({
+                    text("🛰️太阳能发电板："), solar_toggle->Render(),
+                    separator(),
+                    gauge(view_model::electricity::progress()),
+                    separator()
+                }),
             });
         });
 

@@ -6,7 +6,7 @@
 // FTXUI
 #include <ftxui/component/component.hpp>
 
-//
+// Project
 #include "../util/atomic_clamped.hpp"
 #include "../util/periodic_task.hpp"
 
@@ -35,6 +35,10 @@ public:
 
     bool try_consume(std::size_t delta = 1) {
         return value_.try_minus(delta);
+    }
+
+    double progress() const {
+        return solar_.progress_ratio();
     }
 
     std::size_t min() const { return value_.min(); }
