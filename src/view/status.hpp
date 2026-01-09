@@ -36,15 +36,19 @@ public:
 
     template <resource_t T>
     static Component make_resource_bar(std::string icon, Color gauge_color) {
-        return Renderer([icon = std::move(icon), gauge_color = std::move(gauge_color)] {
+        const std::size_t width = std::to_string(T::max()).length();
+
+        return Renderer([icon = std::move(icon), gauge_color = std::move(gauge_color), width = width] {
             return hbox({
                 text(icon),
                 separator(),
                 gauge(T::ratio()) | color(gauge_color),
                 separator(),
-                text(std::format("{}/{}",
+                text(std::format("[{:{}}/{:{}}]",
                     T::now(),
-                    T::max()
+                    width,
+                    T::max(),
+                    width
                 ))
             });
         });

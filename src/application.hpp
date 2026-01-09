@@ -22,6 +22,7 @@ private:
 
     ftxui::Component main_page_ = ftxui::Container::Vertical({
         view::status::component(),
+        ftxui::Renderer([] { return ftxui::text(""); }),
         view::tab::component()
     });
 };
