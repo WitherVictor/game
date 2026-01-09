@@ -31,6 +31,7 @@ target_compile_options(${PROJECT_NAME}
     PRIVATE -Wall
     PRIVATE -Wextra
     PRIVATE -pedantic
+    PRIVATE -O2
 )
 
 # 链接 FTXUI 的库

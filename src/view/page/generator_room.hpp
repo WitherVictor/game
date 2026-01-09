@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ftxui/component/component.hpp>
+#include <ftxui/component/component_options.hpp>
 #include <ftxui/component/event.hpp>
 #include <ftxui/dom/elements.hpp>
 
@@ -13,13 +14,13 @@ using namespace ftxui;
 class generator_room {
 public:
     generator_room() {
-        auto solar_toggle = Toggle(&solar_label, &solar_toggle_index_);
-        solar_toggle |= CatchEvent([this](Event) {
+        auto option = MenuOption::Horizontal();
+        option.elements_infix = [] { return text("|") | automerge; };
+        option.on_change = [this] {
             bool status = solar_toggle_index_ == 0;
             view_model::electricity::update_solar_state(status);
-
-            return false;
-        });
+        };
+        auto solar_toggle = Menu(&solar_label, &solar_toggle_index_, option);
 
         auto solar_selection = Renderer(solar_toggle, [solar_toggle] {
             return vbox({

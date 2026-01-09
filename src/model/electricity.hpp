@@ -1,14 +1,16 @@
 #pragma once
 
 // STL
+#include <chrono>
 #include <cstddef>
+#include <atomic>
 
 // FTXUI
 #include <ftxui/component/component.hpp>
 
 // Project
 #include "../util/atomic_clamped.hpp"
-#include "../util/periodic_task.hpp"
+#include "../util/task.hpp"
 
 namespace model {
 using namespace ftxui;
@@ -17,20 +19,15 @@ namespace {
 using namespace std::chrono_literals;
 class electricity_impl {
 public:
-    electricity_impl()
-        : solar_{[this] { value_.try_add(); }, 2.5s} {}
+    electricity_impl() = default;
 
     electricity_impl(const electricity_impl&) = delete;
     electricity_impl& operator=(const electricity_impl&) = delete;
     electricity_impl(electricity_impl&&) = delete;
     electricity_impl& operator=(electricity_impl&&) = delete;
 
-    bool is_on() const {
-        return solar_.is_on();
-    }
-
     void update_solar_state(bool status) {
-        solar_.set_condition(status);
+        status ? solar_.start() : solar_.stop();
     }
 
     bool try_consume(std::size_t delta = 1) {
@@ -38,7 +35,11 @@ public:
     }
 
     double progress() const {
-        return solar_.progress_ratio();
+        return solar_.progress();
+    }
+
+    void update(std::chrono::milliseconds elapsed_time) {
+        solar_.update(elapsed_time);
     }
 
     std::size_t min() const { return value_.min(); }
@@ -46,7 +47,9 @@ public:
     std::size_t now() const { return value_.now(); }
 private:
     atomic_clamped<std::size_t> value_{0, 100};
-    periodic_task solar_;
+    task solar_ = {[this] {
+        value_.try_add();
+    }, 2.5s};
 };
 }
 

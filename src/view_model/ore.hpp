@@ -20,6 +20,10 @@ public:
         return static_cast<double>(now_) / max_;
     }
 
+    static double progress() {
+        return model::ore.progress();
+    }
+
     static void set_mining_state(bool status) {
         model::ore.set_mining_state(status);
     }

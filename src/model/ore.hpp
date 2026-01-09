@@ -1,6 +1,7 @@
 #pragma once
 
 // STL
+#include <chrono>
 #include <condition_variable>
 #include <cstddef>
 #include <mutex>
@@ -9,7 +10,7 @@
 
 // Project
 #include "../util/atomic_clamped.hpp"
-#include "../util/periodic_task.hpp"
+#include "../util/task.hpp"
 #include "electricity.hpp"
 
 namespace model {
@@ -18,12 +19,7 @@ using namespace std::chrono_literals;
 
 class ore_impl {
 public:
-    ore_impl()
-        : electricity_to_ore_{[this] {
-            if (model::electricity.try_consume(10))
-                try_produce();
-        }, 10s}
-    {}
+    ore_impl() = default;
 
     // 独占资源禁止复制和移动
     ore_impl(const ore_impl&) = delete;
@@ -37,15 +33,26 @@ public:
     std::size_t now() const { return value_.now(); }
 
     void set_mining_state(bool state) {
-        electricity_to_ore_.set_condition(state);
+        state ? electricity_to_ore_.start() : electricity_to_ore_.stop();
     }
 
     bool try_produce(std::size_t delta = 1) {
         return value_.try_add(delta);
     }
+
+    void update(std::chrono::milliseconds elapsed_time) {
+        electricity_to_ore_.update(elapsed_time);
+    }
+
+    double progress() const {
+        return electricity_to_ore_.progress();
+    }
 private:
     atomic_clamped<std::size_t> value_{0, 100};
-    periodic_task electricity_to_ore_;
+    task electricity_to_ore_ = {[this, &electricity = model::electricity] {
+        if (electricity.try_consume(10))
+            value_.try_add();
+    }, 10s};
 };
 } // End of anomynous namespace
 

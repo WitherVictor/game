@@ -14,18 +14,21 @@ using namespace ftxui;
 class mining_room {
 public:
     mining_room() {
-        auto iron_toggle = Toggle(&iron_toggle_label_, &iron_toggle_index_);
-        iron_toggle |= CatchEvent([this] (Event) {
+        auto option = MenuOption::Horizontal();
+        option.elements_infix = [] { return text("|") | automerge; };
+        option.on_change = [this] {
             bool status = iron_toggle_index_ == 0;
             view_model::ore::set_mining_state(status);
-
-            return false;
-        });
+        };
+        auto iron_toggle = Menu(&iron_toggle_label_, &iron_toggle_index_, option);
 
         auto iron_selection = Renderer(iron_toggle, [iron_toggle] {
             return hbox({
-                text("挖铁："),
-                iron_toggle->Render()
+                text("⛏️开采矿石："),
+                iron_toggle->Render(),
+                separator(),
+                gauge(view_model::ore::progress()),
+                separator()
             });
         });
 
