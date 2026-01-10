@@ -3,7 +3,6 @@
 // STL
 #include <chrono>
 #include <cstddef>
-#include <atomic>
 
 // FTXUI
 #include <ftxui/component/component.hpp>
