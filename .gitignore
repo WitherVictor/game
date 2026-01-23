@@ -1,0 +1,4 @@
+# 编译缓存与本地缓存
+build
+.vscode
+.cache
