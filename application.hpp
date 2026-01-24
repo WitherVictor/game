@@ -1,8 +1,11 @@
 #pragma once
 
 // STL
+#include <chrono>
 #include <cstdio>
 #include <stdexcept>
+#include <stop_token>
+#include <thread>
 
 // ImGui
 #include "GLFW/glfw3.h"
@@ -11,7 +14,9 @@
 #include "imgui.h"
 
 // Project
+#include "model/electricity.hpp"
 #include "util/types.hpp"
+#include "view/view.hpp"
 
 // 全局 glfw 错误处理回调函数
 static void glfw_error_callback(int error_code, cstring description) {
@@ -32,6 +37,26 @@ public:
         window_init();
         check_backend_version();
         imgui_init();
+
+        thread_ = std::jthread([](std::stop_token st) {
+            while (!st.stop_requested()) {
+                // 获取经过的时间并转换为毫秒
+                auto elapsed_time_double = ImGui::GetIO().DeltaTime * 1000.0;
+                auto elapsed_time = std::chrono::milliseconds{
+                    static_cast<int>(elapsed_time_double)
+                };
+                
+                // 进行逻辑处理并计算处理逻辑花费的时间
+                auto process_begin = std::chrono::steady_clock::now();
+                view::update_all(elapsed_time);
+                auto process_time = std::chrono::steady_clock::now() - process_begin;
+
+                // 如果处理完后当前帧仍然未结束
+                // 那么睡眠直到当前帧结束
+                if (elapsed_time > process_time)
+                    std::this_thread::sleep_for(elapsed_time - process_time);
+            }
+        });
     }
 
     ~application() {
@@ -52,14 +77,14 @@ public:
 
         // 初始化窗口
         auto main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
-        window = glfwCreateWindow(
+        window_ = glfwCreateWindow(
             (int)(window_width * main_scale),
             (int)(window_height * main_scale),
             title,
             nullptr,
             nullptr
         );
-        glfwMakeContextCurrent(window);
+        glfwMakeContextCurrent(window_);
         glfwSwapInterval(1);
     }
 
@@ -101,26 +126,33 @@ public:
         ImGui::CreateContext();
 
         // 创建 IO 并启用键盘导航
-        io = ImGui::GetIO();
+        auto& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+        // 添加中文字符集
+        io.Fonts->AddFontFromFileTTF(
+            "C:\\Windows\\Fonts\\msyh.ttc",
+            18.0f,
+            nullptr,
+            io.Fonts->GetGlyphRangesChineseFull()
+        );
 
         // 设置 ImGui 样式
         ImGui::StyleColorsClassic();
 
         // 设置平台与渲染后端
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplGlfw_InitForOpenGL(window_, true);
         ImGui_ImplOpenGL3_Init(backend_version);
     }
 
     void run() {
-        while (!glfwWindowShouldClose(window)) {
+        while (!glfwWindowShouldClose(window_)) {
             run_loop_start();
 
-            ImGui::Begin("Hello world");
+            view::status_window();
 
-            ImGui::Text("Hello this is a text ⛏️");
-
-            ImGui::End();
+            if (ImGui::Button("开启太阳能板"))
+                model::electricity.reverse_state();
 
             run_loop_end();
         }
@@ -139,15 +171,16 @@ public:
     void run_loop_end() {
         ImGui::Render();
         int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glfwGetFramebufferSize(window_, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
         glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window_);
     }
 private:
-    ImGuiIO io;
-    GLFWwindow* window;
+    GLFWwindow* window_;
+
+    std::jthread thread_;
 };
