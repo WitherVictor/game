@@ -29,6 +29,7 @@ public:
     constexpr inline static cstring title = "Escape from Charlie Station";
     constexpr inline static std::size_t window_width = 1280;
     constexpr inline static std::size_t window_height = 800;
+    constexpr inline static std::chrono::milliseconds frame_time = 16ms;
 
     // 定义后端版本字符串
     inline static cstring backend_version = nullptr;
@@ -39,22 +40,18 @@ public:
         imgui_init();
 
         thread_ = std::jthread([](std::stop_token st) {
-            while (!st.stop_requested()) {
-                // 获取经过的时间并转换为毫秒
-                auto elapsed_time_double = ImGui::GetIO().DeltaTime * 1000.0;
-                auto elapsed_time = std::chrono::milliseconds{
-                    static_cast<int>(elapsed_time_double)
-                };
-                
-                // 进行逻辑处理并计算处理逻辑花费的时间
-                auto process_begin = std::chrono::steady_clock::now();
-                view::update_all(elapsed_time);
-                auto process_time = std::chrono::steady_clock::now() - process_begin;
+            // 下一帧的时间点
+            auto next_frame_time = std::chrono::steady_clock::now();
 
-                // 如果处理完后当前帧仍然未结束
-                // 那么睡眠直到当前帧结束
-                if (elapsed_time > process_time)
-                    std::this_thread::sleep_for(elapsed_time - process_time);
+            while (!st.stop_requested()) {
+                // 处理逻辑
+                view::update_all(frame_time);
+
+                // 向前推进一帧
+                next_frame_time += frame_time;
+
+                // 休眠直到下一时间点
+                std::this_thread::sleep_until(next_frame_time);
             }
         });
     }
