@@ -17,7 +17,10 @@ public:
 
     // 默认当前值为最小值
     clamped(T min, T max)
-        : min_{min}, max_{max}, now_{min}
+        : clamped{min, max, min} {}
+
+    clamped(T min, T max, T now)
+        : min_{min}, max_{max}, now_{now}
     {
         // 如果最小值大于最大值，则抛出运行时异常
         if (min_ > max_) {

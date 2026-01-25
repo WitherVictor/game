@@ -11,6 +11,9 @@ public:
     // 必须提供上下限
     atomic_clamped() = delete;
 
+    atomic_clamped(T min, T max, T now)
+        : value_{min, max, now} {}
+
     atomic_clamped(T min, T max)
         : value_{min, max} {}
 
