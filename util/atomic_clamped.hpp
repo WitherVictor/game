@@ -36,6 +36,11 @@ public:
         return value_.now();
     }
 
+    const long double ratio() const {
+        std::shared_lock lock{mutex_};
+        return value_.ratio();
+    }
+
     void set_min(T new_min) {
         std::unique_lock lock{mutex_};
         value_.set_min(new_min);

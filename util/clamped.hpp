@@ -40,6 +40,10 @@ public:
         return now_;
     }
 
+    const long double ratio() const {
+        return now_ / max_;
+    }
+
     // 设置最小值
     void set_min(T new_min) {
         min_ = new_min;
