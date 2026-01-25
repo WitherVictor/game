@@ -48,3 +48,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glfw
     opengl32
 )
+
+if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+    add_subdirectory(tests)
+endif ()
