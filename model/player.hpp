@@ -9,19 +9,19 @@
 namespace model {
 class player_impl {
 public:
-    const auto& health() {
+    const auto& health() const {
         return health_;
     }
 
-    const auto& hunger() {
+    const auto& hunger() const {
         return hunger_;
     }
 
-    const auto& thirst() {
+    const auto& thirst() const {
         return thirst_;
     }
 
-    const auto& stamina() {
+    const auto& stamina() const {
         return stamina_;
     }
 private:
