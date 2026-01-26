@@ -1,6 +1,6 @@
 #include "imgui.h"
 
-#include "info.hpp"
+#include "default_config.hpp"
 
 namespace view::window {
     enum class room_type {
@@ -11,15 +11,7 @@ namespace view::window {
 
     inline static room_type current_room = room_type::none;
 
-    inline void side_menu(window::info info) {
-        // 计算窗口起始位置并设置
-        auto side_menu_pos = ImVec2{
-            info.pos.x,
-            info.pos.y + info.size.y
-        };
-        ImGui::SetNextWindowPos(side_menu_pos);
-        ImGui::SetNextWindowSize(ImVec2{info.size.x, 0}, ImGuiCond_Always);
-
+    inline void side_menu() {
         // 创建窗口
         ImGui::Begin("空间站", nullptr, window::default_config);
 

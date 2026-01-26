@@ -9,8 +9,8 @@
 
 namespace view {
     inline void draw() {
-        auto status_window_info = window::status();
-        window::side_menu(status_window_info);
+        window::status();
+        window::side_menu();
     }
 
     inline void update_all(const std::chrono::milliseconds& elapsed_time) {
