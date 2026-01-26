@@ -24,29 +24,39 @@ FetchContent_Declare(
 # 安装依赖 glfw imgui
 FetchContent_MakeAvailable(glfw imgui)
 
+add_subdirectory(view/window)
+
 add_executable(${PROJECT_NAME} main.cpp)
 
 # 引用 imgui 头文件
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${imgui_SOURCE_DIR}
-    ${imgui_SOURCE_DIR}/backends
-    ${PROJECT_SOURCE_DIR}
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+        ${PROJECT_SOURCE_DIR}
 )
 
 # 添加源文件
-target_sources(${PROJECT_NAME} PRIVATE
-    ${imgui_SOURCE_DIR}/imgui.cpp
-    ${imgui_SOURCE_DIR}/imgui_draw.cpp
-    ${imgui_SOURCE_DIR}/imgui_tables.cpp
-    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+target_sources(${PROJECT_NAME}
+    PRIVATE
+        # ImGui
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+
+        # 窗口以及渲染后端
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
 # 链接后端依赖库
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    glfw
-    opengl32
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE
+        glfw
+        opengl32
+
+        ${VIEW_MODEL}
 )
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")

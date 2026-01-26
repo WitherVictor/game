@@ -146,7 +146,7 @@ public:
         while (!glfwWindowShouldClose(window_)) {
             run_loop_start();
 
-            view::status_window();
+            view::draw();
 
             if (ImGui::Button("开启太阳能板"))
                 model::electricity.reverse_state();
