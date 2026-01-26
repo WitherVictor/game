@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <stdexcept>
+#include <tuple>
 
 // 算术类型概念
 template <typename T>
@@ -42,6 +43,19 @@ public:
 
     const long double ratio() const {
         return now_ / max_;
+    }
+
+    // values 函数返回的类型
+    struct info {
+        T min;
+        T max;
+        T now;
+        long double ratio;
+    };
+
+    // 返回所有的数据
+    const info values() const {
+        return {min(), max(), now(), ratio()};
     }
 
     // 设置最小值

@@ -41,6 +41,11 @@ public:
         return value_.ratio();
     }
 
+    const clamped<T>::info values() const {
+        std::shared_lock lock{mutex_};
+        return value_.values();
+    }
+
     void set_min(T new_min) {
         std::unique_lock lock{mutex_};
         value_.set_min(new_min);

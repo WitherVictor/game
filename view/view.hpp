@@ -24,11 +24,14 @@ namespace view {
         ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Always);
         ImGui::Begin("人物状态", nullptr, default_window_config);
 
+        const auto player_health = model::player.health();
         ImGui::Text("%s", "Health");
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Red);
-        ImGui::ProgressBar(model::player.health().ratio(), ImVec2{});
+        ImGui::ProgressBar(player_health.ratio, ImVec2{});
         ImGui::PopStyleColor();
+        ImGui::SameLine();
+        ImGui::Text("[%zu/%zu]", player_health.now, player_health.max);
 
         ImGui::End();
     }
