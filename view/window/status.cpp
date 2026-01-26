@@ -2,7 +2,7 @@
 #include "imgui.h"
 
 #include "model/player.hpp"
-#include "util/color.hpp"
+#include "util/color.cpp"
 
 namespace view::window {
     constexpr inline static auto default_window_config = 
