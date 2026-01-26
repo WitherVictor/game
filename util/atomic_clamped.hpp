@@ -41,7 +41,7 @@ public:
         return value_.ratio();
     }
 
-    const clamped<T>::info values() const {
+    const clamped_values<T> values() const {
         std::shared_lock lock{mutex_};
         return value_.values();
     }

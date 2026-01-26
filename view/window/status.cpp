@@ -3,6 +3,7 @@
 
 #include "model/player.hpp"
 #include "util/color.cpp"
+#include "util/clamped_values.hpp"
 
 namespace view::window {
     constexpr inline static auto default_window_config = 
@@ -13,7 +14,7 @@ namespace view::window {
         ImGuiWindowFlags_NoScrollWithMouse;
 
     template <typename T>
-    inline void make_status_bar(const char* status_name, typename clamped<T>::info current_status, ImVec4 color) {
+    inline void make_status_bar(const char* status_name, clamped_values<T> current_status, ImVec4 color) {
         // 状态名
         ImGui::Text("%s", status_name);
         ImGui::SameLine();

@@ -1,15 +1,12 @@
 #pragma once
 
-#include <concepts>
 #include <stdexcept>
 
-// 算术类型概念
-template <typename T>
-concept arithmetic = std::integral<T> || std::floating_point<T>;
+#include "clamped_values.hpp"
 
 // 将值限定在给定的上下限的类型
 // 要求底层类型必须为算术类型
-template <typename T>
+template <arithmetic T>
 class clamped {
 public:
     // 必须提供上下限
@@ -44,16 +41,8 @@ public:
         return static_cast<long double>(now_) / max_;
     }
 
-    // values 函数返回的类型
-    struct info {
-        T min;
-        T max;
-        T now;
-        long double ratio;
-    };
-
     // 返回所有的数据
-    const info values() const {
+    const clamped_values<T> values() const {
         return {min(), max(), now(), ratio()};
     }
 
