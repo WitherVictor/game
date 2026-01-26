@@ -2,7 +2,6 @@
 
 #include <concepts>
 #include <stdexcept>
-#include <tuple>
 
 // 算术类型概念
 template <typename T>
