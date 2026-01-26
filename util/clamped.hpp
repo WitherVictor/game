@@ -41,7 +41,7 @@ public:
     }
 
     const long double ratio() const {
-        return now_ / max_;
+        return static_cast<long double>(now_) / max_;
     }
 
     // values 函数返回的类型
