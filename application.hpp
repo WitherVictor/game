@@ -148,9 +148,6 @@ public:
 
             view::draw();
 
-            if (ImGui::Button("开启太阳能板"))
-                model::electricity.reverse_state();
-
             run_loop_end();
         }
     }
