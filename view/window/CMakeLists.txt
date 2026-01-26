@@ -5,6 +5,7 @@ set(VIEW_WINDOWS view_windows)
 add_library(${VIEW_WINDOWS}
     STATIC
         status.cpp
+        side_menu.cpp
 )
 
 target_compile_features(${VIEW_WINDOWS} PRIVATE
