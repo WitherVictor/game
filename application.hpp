@@ -14,9 +14,10 @@
 #include "imgui.h"
 
 // Project
-#include "model/electricity.hpp"
 #include "util/types.hpp"
 #include "view/view.hpp"
+
+using namespace std::chrono_literals;
 
 // 全局 glfw 错误处理回调函数
 static void glfw_error_callback(int error_code, cstring description) {
