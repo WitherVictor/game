@@ -1,7 +1,7 @@
-#pragma once
+#ifndef UTIL_TASK_HPP
+#define UTIL_TASK_HPP
 
 #include <chrono>
-#include <concepts>
 #include <functional>
 #include <mutex>
 #include <shared_mutex>
@@ -67,3 +67,5 @@ private:
     std::chrono::milliseconds current_ = 0ms;
     std::chrono::milliseconds duration_;
 };
+
+#endif // End macro UTIL_TASK_HPP
