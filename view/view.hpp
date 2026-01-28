@@ -147,16 +147,22 @@ public:
         ImGui::Begin("人物状态", nullptr, default_window_config);
 
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Red);
+        ImGui::Text("%s", "生命");
+        ImGui::SameLine();
         const auto health_values = model_.get_player().health.values();
         ImGui::ProgressBar(health_values.ratio, ImVec2{});
         ImGui::PopStyleColor();
 
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Brown);
+        ImGui::Text("%s", "饥饿");
+        ImGui::SameLine();
         const auto hunger_values = model_.get_player().hunger.values();
-        ImGui::ProgressBar(health_values.ratio, ImVec2{});
+        ImGui::ProgressBar(hunger_values.ratio, ImVec2{});
         ImGui::PopStyleColor();
 
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::LightBlue);
+        ImGui::Text("%s", "口渴");
+        ImGui::SameLine();
         const auto thirst_values = model_.get_player().thirst.values();
         ImGui::ProgressBar(thirst_values.ratio, ImVec2{});
         ImGui::PopStyleColor();
