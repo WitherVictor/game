@@ -24,9 +24,6 @@ FetchContent_Declare(
 # 安装依赖 glfw imgui
 FetchContent_MakeAvailable(glfw imgui)
 
-add_subdirectory(util)
-add_subdirectory(view/window)
-
 add_executable(${PROJECT_NAME} main.cpp)
 
 # 引用 imgui 头文件
@@ -54,12 +51,8 @@ target_sources(${PROJECT_NAME}
 # 链接后端依赖库
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        util
-
         glfw
-        opengl32
-
-        ${VIEW_WINDOW}     
+        opengl32   
 )
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")

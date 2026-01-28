@@ -1,40 +1,21 @@
-#pragma once
+#ifndef MODEL_MODEL_HPP
+#define MODEL_MODEL_HPP
 
-#include <chrono>
-#include <list>
-#include <memory>
-
-#include "impl/electricity.hpp"
-#include "impl/player.hpp"
-
-#include "util/task.hpp"
-
+#include "electricity.hpp"
+#include "player.hpp"
 class model {
 public:
-    void update_all(std::chrono::milliseconds elapsed_time) {
-        for (auto& observer : observers_) {
-            observer->update(elapsed_time);
-        }
+    player& get_player() {
+        return player_;
     }
 
-    void register_task(std::shared_ptr<task> task_ptr) {
-        observers_.push_back(task_ptr);
-    }
-
-    static model& instance() {
-        static model instance_;
-        return instance_;
-    }
-
-    static player_impl& player() {
-        static player_impl instance;
-        return instance;
-    }
-
-    static electricity_impl& electricity() {
-        static electricity_impl instance;
-        return instance;
+    electricity& get_electricity() {
+        return electricity_;
     }
 private:
-    std::list<std::shared_ptr<task>> observers_;
+    electricity electricity_;
+
+    player player_;
 };
+
+#endif // End of MODEL_MODEL_HPP
