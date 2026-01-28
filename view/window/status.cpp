@@ -3,7 +3,7 @@
 
 // Project
 #include "view/window/default_config.hpp"
-#include "model/player.hpp"
+#include "model/model.hpp"
 #include "util/color.cpp"
 #include "util/clamped_values.hpp"
 #include "window_info.hpp"
@@ -30,9 +30,9 @@ namespace view::window {
 
         auto window_info = GetCurrentWindowInfo();
 
-        make_status_bar<std::size_t>("生命值", model::player.health(), Color::Red);
-        make_status_bar<std::size_t>("饥饿值", model::player.hunger(), Color::Brown);
-        make_status_bar<std::size_t>("口渴值", model::player.thirst(), Color::LightBlue);
+        make_status_bar<std::size_t>("生命值", model::player().health(), Color::Red);
+        make_status_bar<std::size_t>("饥饿值", model::player().hunger(), Color::Brown);
+        make_status_bar<std::size_t>("口渴值", model::player().thirst(), Color::LightBlue);
 
         ImGui::End();
 

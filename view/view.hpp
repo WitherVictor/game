@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "window/status.cpp"
 #include "window/side_menu.cpp"
+#include "window/main_window.cpp"
 
 namespace view {
     inline void draw() {
@@ -18,10 +19,16 @@ namespace view {
             status_window_info.pos.x,
             status_window_info.pos.y + status_window_info.size.y
         });
-        window::side_menu();
+        auto menu_window_info = window::side_menu();
+
+        ImGui::SetNextWindowPos(ImVec2{
+            menu_window_info.pos.x + menu_window_info.size.x,
+            menu_window_info.pos.y
+        });
+        window::main_window();
     }
 
     inline void update_all(const std::chrono::milliseconds& elapsed_time) {
-        
+        model::instance().update_all(elapsed_time);
     }
 };

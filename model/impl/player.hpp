@@ -6,7 +6,6 @@
 // Project
 #include "util/atomic_clamped.hpp"
 
-namespace model {
 class player_impl {
 public:
     const auto health() const {
@@ -20,11 +19,12 @@ public:
     const auto thirst() const {
         return thirst_.values();
     }
+
+    const bool try_consume_hunger(std::size_t delta = 1) {
+        return hunger_.try_minus(delta);
+    }
 private:
     atomic_clamped<std::size_t> health_{0, 100, 100};
-    atomic_clamped<std::size_t> hunger_{0, 100, 50};
+    atomic_clamped<std::size_t> hunger_{0, 2500, 2000};
     atomic_clamped<std::size_t> thirst_{0, 100, 50};
 };
-
-inline player_impl player;
-}

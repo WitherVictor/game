@@ -10,8 +10,8 @@ using namespace std::chrono_literals;
 
 class task {
 public:
-    template <std::invocable callable, typename rep, typename duration>
-    task(callable func, std::chrono::duration<rep, duration> task_duration)
+    template <typename rep, typename duration>
+    task(std::function<void()> func, std::chrono::duration<rep, duration> task_duration)
         : task_{func}, duration_{std::chrono::duration_cast<std::chrono::milliseconds>(task_duration)} {}
 
     void update(const std::chrono::milliseconds& elapsed) {
