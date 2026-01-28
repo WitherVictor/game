@@ -3,6 +3,7 @@
 // STL
 #include <cstdio>
 #include <stdexcept>
+#include <string>
 
 // ImGui
 #include "GLFW/glfw3.h"
@@ -150,7 +151,10 @@ public:
         ImGui::Text("%s", "生命");
         ImGui::SameLine();
         const auto health_values = model_.get_player().health.values();
-        ImGui::ProgressBar(health_values.ratio, ImVec2{});
+        ImGui::ProgressBar(
+            health_values.ratio,
+            ImVec2{},
+            std::to_string(health_values.now).c_str());
         ImGui::PopStyleColor();
 
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Brown);
