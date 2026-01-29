@@ -12,11 +12,17 @@
 #include "imgui.h"
 
 // Project
+#include "imgui_internal.h"
 #include "model/model.hpp"
 #include "color.hpp"
 
 using namespace std::chrono_literals;
 using cstring = const char*;
+
+enum class main_window_type {
+    none,
+    engi_mech
+};
 
 // 全局 glfw 错误处理回调函数
 static void glfw_error_callback(int error_code, cstring description) {
@@ -138,14 +144,22 @@ public:
             run_loop_start();
 
             ImGui::SetNextWindowPos(ImVec2{});
-            view::player_status();
+            const auto status_window = view::player_status();
+            ImGui::SetNextWindowPos({
+                status_window->Pos.x,
+                status_window->Size.y
+            });
+            view::side_menu();
 
             run_loop_end();
         }
     }
 
-    void player_status() {
+    // 绘制人物状态栏
+    ImGuiWindow* player_status() {
         ImGui::Begin("人物状态", nullptr, default_window_config);
+
+        auto window = ImGui::GetCurrentWindow();
 
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Red);
         ImGui::Text("%s", "生命");
@@ -169,6 +183,66 @@ public:
         ImGui::SameLine();
         const auto thirst_values = model_.get_player().thirst.values();
         ImGui::ProgressBar(thirst_values.ratio, ImVec2{});
+        ImGui::PopStyleColor();
+
+        ImGui::End();
+
+        return window;
+    }
+
+    // 绘制人物侧边栏
+    void side_menu() {
+        ImGui::Begin("空间站", nullptr, default_window_config);
+
+        auto pos = ImGui::GetWindowPos();
+        auto size = ImGui::GetWindowSize();
+        ImGui::SetNextWindowPos({
+            pos.x + size.x,
+            pos.y,
+        });
+
+        static auto current_window = main_window_type::none;
+        ImGui::Text("工程部");
+        ImGui::Indent();
+        if (ImGui::Selectable("机械发电室")) {
+            current_window = main_window_type::engi_mech;
+        }
+
+        switch (current_window) {
+            case main_window_type::engi_mech:
+                mechgen();
+                break;
+            case main_window_type::none:
+                [[fallthrough]];
+            default:
+                break;
+        }
+
+        ImGui::End();
+    }
+
+    void mechgen() {
+        static auto task_ptr = [this]() {
+            auto ptr = std::make_shared<task>([this] {
+                if (model_.get_player().hunger.try_minus()) {
+                    model_.get_electricity().power.force_add();
+                }
+            }, 1s);
+
+            task_manager::instance().add_task(ptr);
+            return ptr;
+        }();
+
+        ImGui::Begin("机械发电室", nullptr, default_window_config);
+
+        static bool is_checked = false;
+        if (ImGui::Checkbox("人力发电机", &is_checked)) {
+            task_ptr->reverse_condition();
+        }
+
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::ElectricityYellow);
+        ImGui::ProgressBar(task_ptr->progress(), ImVec2{});
         ImGui::PopStyleColor();
 
         ImGui::End();
