@@ -21,7 +21,8 @@ using cstring = const char*;
 
 enum class main_window_type {
     none,
-    engi_mech
+    engi_mech,
+    engi_powerstore,
 };
 
 // 全局 glfw 错误处理回调函数
@@ -191,7 +192,7 @@ public:
     }
 
     // 绘制人物侧边栏
-    void side_menu() {
+    ImGuiWindow* side_menu() {
         ImGui::Begin("空间站", nullptr, default_window_config);
 
         auto pos = ImGui::GetWindowPos();
@@ -208,20 +209,25 @@ public:
             current_window = main_window_type::engi_mech;
         }
 
-        switch (current_window) {
-            case main_window_type::engi_mech:
-                mechgen();
-                break;
-            case main_window_type::none:
-                [[fallthrough]];
-            default:
-                break;
+        if (ImGui::Selectable("电力存储室")) {
+            current_window = main_window_type::engi_powerstore;
         }
 
         ImGui::End();
+
+        switch (current_window) {
+            case main_window_type::engi_mech:
+                return mechgen();
+            case main_window_type::engi_powerstore:
+                return powerstore();
+            case main_window_type::none:
+                [[fallthrough]];
+            default:
+                return nullptr;
+        }
     }
 
-    void mechgen() {
+    ImGuiWindow* mechgen() {
         static auto task_ptr = [this]() {
             auto ptr = std::make_shared<task>([this] {
                 if (model_.get_player().hunger.try_minus()) {
@@ -234,6 +240,7 @@ public:
         }();
 
         ImGui::Begin("机械发电室", nullptr, default_window_config);
+        auto window_ptr = ImGui::GetCurrentWindow();;
 
         static bool is_checked = false;
         if (ImGui::Checkbox("人力发电机", &is_checked)) {
@@ -245,7 +252,30 @@ public:
         ImGui::ProgressBar(task_ptr->progress(), ImVec2{});
         ImGui::PopStyleColor();
 
+        ImGui::SameLine();
+        ImGui::TextDisabled("(?)");
+        ImGui::SetItemTooltip("%s", "每秒获得 1 点电力，消耗饥饿值。");
+
         ImGui::End();
+
+        return window_ptr;
+    }
+
+    ImGuiWindow* powerstore() {
+        ImGui::Begin("电力存储室", nullptr, default_window_config);
+        auto window_ptr = ImGui::GetCurrentWindow();
+
+        ImGui::Text("%s", "电力");
+        ImGui::SameLine();
+        const auto electricity = model_.get_electricity().power.values();
+        ImGui::ProgressBar(
+            electricity.ratio,
+            ImVec2{},
+            std::to_string(electricity.now).c_str());
+
+        ImGui::End();
+
+        return window_ptr;
     }
 
     void run_loop_start() {
