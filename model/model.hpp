@@ -8,6 +8,7 @@
 #include "electricity.hpp"
 #include "player.hpp"
 #include "task_manager.hpp"
+#include "inventory.hpp"
 
 using namespace std::chrono_literals;
 
@@ -15,17 +16,16 @@ class model {
 public:
     inline const static auto frame_rate = 16ms;
 
-    player& get_player() {
-        return player_;
+    static model& instance() {
+        static model instance_;
+        return instance_;
     }
 
-    electricity& get_electricity() {
-        return electricity_;
-    }
+    electricity electricity;
+    player player;
+    inventory inventory;
+
 private:
-    electricity electricity_;
-
-    player player_;
 
     std::jthread thread_{[](std::stop_token st) {
         auto next_frame = std::chrono::steady_clock::now();

@@ -1,9 +1,13 @@
 #include "view/view.hpp"
 #include "model/model.hpp"
 
+#include "item/protein_bar.hpp"
+#include <memory>
+
 int main() {
-    model model_;
-    view view_{model_};
+    view view_{model::instance()};
+
+    model::instance().inventory.add_item(std::make_shared<protein_bar>(3));
 
     view_.run();
 }

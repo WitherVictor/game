@@ -21,6 +21,7 @@ using cstring = const char*;
 
 enum class main_window_type {
     none,
+    spawn_storage,
     engi_mech,
     engi_powerstore,
 };
@@ -165,7 +166,7 @@ public:
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Red);
         ImGui::Text("%s", "生命");
         ImGui::SameLine();
-        const auto health_values = model_.get_player().health.values();
+        const auto health_values = model_.player.health.values();
         ImGui::ProgressBar(
             health_values.ratio,
             ImVec2{},
@@ -175,14 +176,14 @@ public:
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Brown);
         ImGui::Text("%s", "饥饿");
         ImGui::SameLine();
-        const auto hunger_values = model_.get_player().hunger.values();
+        const auto hunger_values = model_.player.hunger.values();
         ImGui::ProgressBar(hunger_values.ratio, ImVec2{});
         ImGui::PopStyleColor();
 
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::LightBlue);
         ImGui::Text("%s", "口渴");
         ImGui::SameLine();
-        const auto thirst_values = model_.get_player().thirst.values();
+        const auto thirst_values = model_.player.thirst.values();
         ImGui::ProgressBar(thirst_values.ratio, ImVec2{});
         ImGui::PopStyleColor();
 
@@ -203,6 +204,14 @@ public:
         });
 
         static auto current_window = main_window_type::none;
+        ImGui::Text("休眠舱");
+        ImGui::Indent();
+
+        if (ImGui::Selectable("储物间")) {
+            current_window = main_window_type::spawn_storage;
+        }
+        ImGui::Unindent();
+
         ImGui::Text("工程部");
         ImGui::Indent();
         if (ImGui::Selectable("机械发电室")) {
@@ -215,11 +224,14 @@ public:
 
         ImGui::End();
 
+        // 绘制主窗口
         switch (current_window) {
             case main_window_type::engi_mech:
                 return mechgen();
             case main_window_type::engi_powerstore:
                 return powerstore();
+            case main_window_type::spawn_storage:
+                return storage();
             case main_window_type::none:
                 [[fallthrough]];
             default:
@@ -230,8 +242,8 @@ public:
     ImGuiWindow* mechgen() {
         static auto task_ptr = [this]() {
             auto ptr = std::make_shared<task>([this] {
-                if (model_.get_player().hunger.try_minus()) {
-                    model_.get_electricity().power.force_add();
+                if (model_.player.hunger.try_minus()) {
+                    model_.electricity.power.force_add();
                 }
             }, 1s);
 
@@ -267,15 +279,36 @@ public:
 
         ImGui::Text("%s", "电力");
         ImGui::SameLine();
-        const auto electricity = model_.get_electricity().power.values();
+        const auto electricity = model_.electricity.power.values();
         ImGui::ProgressBar(
             electricity.ratio,
             ImVec2{},
-            std::to_string(electricity.now).c_str());
+            std::format("{} KJ", electricity.now).c_str());
 
         ImGui::End();
 
         return window_ptr;
+    }
+
+    ImGuiWindow* storage() {
+        ImGui::Begin("储物间", nullptr, default_window_config);
+        auto current_window = ImGui::GetCurrentWindow();
+
+        auto items = model_.inventory.get_items();
+        constexpr std::size_t line_length = 8;
+
+        for (auto& item : items) {
+            if (item->get_amount() == 0)
+                continue;
+
+            auto label = std::format("{} x{}", item->get_name(), item->get_amount());
+            if (ImGui::Selectable(label.c_str())) {
+                item->use();
+            }
+        }
+
+        ImGui::End();
+        return current_window;
     }
 
     void run_loop_start() {
