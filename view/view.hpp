@@ -184,7 +184,7 @@ public:
         ImGui::Text("%s", "口渴");
         ImGui::SameLine();
         const auto thirst_values = model_.player.thirst.values();
-        ImGui::ProgressBar(thirst_values.ratio, ImVec2{});
+        ImGui::ProgressBar(thirst_values.ratio, ImVec2{}, std::to_string(thirst_values.now).c_str());
         ImGui::PopStyleColor();
 
         ImGui::End();

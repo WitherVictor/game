@@ -11,8 +11,12 @@ using namespace std::chrono_literals;
 class task {
 public:
     template <typename rep, typename duration>
+    task(std::function<void()> func, std::chrono::duration<rep, duration> task_duration, bool start_up)
+        : task_{func}, duration_{std::chrono::duration_cast<std::chrono::milliseconds>(task_duration)}, condition_{start_up} {}
+
+        template <typename rep, typename duration>
     task(std::function<void()> func, std::chrono::duration<rep, duration> task_duration)
-        : task_{func}, duration_{std::chrono::duration_cast<std::chrono::milliseconds>(task_duration)} {}
+        : task{func, task_duration, false} {}
 
     void update(const std::chrono::milliseconds& elapsed) {
         std::unique_lock lock{mutex_};
@@ -60,12 +64,12 @@ public:
 private:
     mutable std::shared_mutex mutex_;
 
-    bool condition_ = false;
-
     std::function<void()> task_;
 
     std::chrono::milliseconds current_ = 0ms;
     std::chrono::milliseconds duration_;
+
+    bool condition_ = false;
 };
 
 #endif // End macro UTIL_TASK_HPP
