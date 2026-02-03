@@ -12,9 +12,6 @@ struct player {
     player() {
         task_manager::instance().add_task(std::make_shared<task>([this] {
             hunger.force_minus();
-        }, 1s, true));
-
-        task_manager::instance().add_task(std::make_shared<task>([this] {
             thirst.force_minus();
         }, 1s, true));
 
