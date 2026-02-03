@@ -15,12 +15,15 @@
 #include "imgui_internal.h"
 #include "model/model.hpp"
 #include "color.hpp"
+#include "item/other.hpp"
+#include "model/task_manager.hpp"
 
 using namespace std::chrono_literals;
 using cstring = const char*;
 
-enum class main_window_type {
+enum class main_window_t {
     none,
+    spawn_collapsed,
     spawn_storage,
     engi_mech,
     engi_powerstore,
@@ -203,36 +206,41 @@ public:
             pos.y,
         });
 
-        static auto current_window = main_window_type::none;
+        static auto current_window = main_window_t::none;
         ImGui::Text("休眠舱");
         ImGui::Indent();
 
         if (ImGui::Selectable("储物间")) {
-            current_window = main_window_type::spawn_storage;
+            current_window = main_window_t::spawn_storage;
+        }
+        if (ImGui::Selectable("坍塌的房间")) {
+            current_window = main_window_t::spawn_collapsed;
         }
         ImGui::Unindent();
 
         ImGui::Text("工程部");
         ImGui::Indent();
         if (ImGui::Selectable("机械发电室")) {
-            current_window = main_window_type::engi_mech;
+            current_window = main_window_t::engi_mech;
         }
 
         if (ImGui::Selectable("电力存储室")) {
-            current_window = main_window_type::engi_powerstore;
+            current_window = main_window_t::engi_powerstore;
         }
 
         ImGui::End();
 
         // 绘制主窗口
         switch (current_window) {
-            case main_window_type::engi_mech:
+            case main_window_t::engi_mech:
                 return mechgen();
-            case main_window_type::engi_powerstore:
+            case main_window_t::engi_powerstore:
                 return powerstore();
-            case main_window_type::spawn_storage:
+            case main_window_t::spawn_storage:
                 return storage();
-            case main_window_type::none:
+            case main_window_t::spawn_collapsed:
+                return collapsed();
+            case main_window_t::none:
                 [[fallthrough]];
             default:
                 return nullptr;
@@ -309,6 +317,33 @@ public:
 
         ImGui::End();
         return current_window;
+    }
+
+    ImGuiWindow* collapsed() {
+        static auto task_ptr = [this] {
+            auto ptr = std::make_shared<task>([this] {
+                auto& player = model_.player;
+                player.hunger.force_minus(10);
+                model_.inventory.add_item(std::make_shared<ice_block>(1));
+            }, 60s);
+
+            task_manager::instance().add_task(ptr);
+            return ptr;
+        }();
+
+        ImGui::Begin("已经坍塌的房间", nullptr, default_window_config);
+        auto window = ImGui::GetCurrentWindow();
+
+        static bool is_checked = false;
+        if (ImGui::Checkbox("采集冻结的冰块", &is_checked)) {
+            is_checked ? task_ptr->start() : task_ptr->stop();
+        }
+
+        ImGui::SameLine();
+        ImGui::ProgressBar(task_ptr->progress(), ImVec2{});
+
+        ImGui::End();
+        return window;
     }
 
     void run_loop_start() {
