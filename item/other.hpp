@@ -3,6 +3,7 @@
 
 #include "item.hpp"
 #include "model/model.hpp"
+#include <cstddef>
 
 class ice_block : public usable_item {
 public:
@@ -19,6 +20,17 @@ public:
                 player.hunger.force_minus(10);
                 player.thirst.force_add(100);
             }
+        } {}
+};
+
+class metal_scrap : public item {
+public:
+    metal_scrap(std::size_t amount)
+        : item{
+            "金属碎片",
+            amount,
+            "一片较小的金属碎片，"
+            "非常适合在适量的敲打下制作成其他物品。",
         } {}
 };
 

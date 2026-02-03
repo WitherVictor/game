@@ -321,7 +321,7 @@ public:
     }
 
     ImGuiWindow* collapsed() {
-        static auto task_ptr = [this] {
+        static auto ice_task_ptr = [this] {
             auto ptr = std::make_shared<task>([this] {
                 auto& player = model_.player;
                 player.hunger.force_minus(10);
@@ -332,16 +332,35 @@ public:
             return ptr;
         }();
 
+        static auto metal_task_ptr = [this] {
+            auto ptr = std::make_shared<task>([this] {
+                auto& player = model_.player;
+                player.hunger.force_minus(25);
+                model_.inventory.add_item(std::make_shared<metal_scrap>(1));
+            }, 60s);
+
+            task_manager::instance().add_task(ptr);
+            return ptr;
+        }();
+
         ImGui::Begin("已经坍塌的房间", nullptr, default_window_config);
         auto window = ImGui::GetCurrentWindow();
 
-        static bool is_checked = false;
-        if (ImGui::Checkbox("采集冻结的冰块", &is_checked)) {
-            is_checked ? task_ptr->start() : task_ptr->stop();
+        static bool ice_is_checked = false;
+        if (ImGui::Checkbox("采集冻结的冰块", &ice_is_checked)) {
+            ice_is_checked ? ice_task_ptr->start() : ice_task_ptr->stop();
         }
 
         ImGui::SameLine();
-        ImGui::ProgressBar(task_ptr->progress(), ImVec2{});
+        ImGui::ProgressBar(ice_task_ptr->progress(), ImVec2{});
+
+        static bool metal_is_checked = false;
+        if (ImGui::Checkbox("搜寻金属残骸堆", &metal_is_checked)) {
+            metal_is_checked ? metal_task_ptr->start() : metal_task_ptr->stop();
+        }
+
+        ImGui::SameLine();
+        ImGui::ProgressBar(metal_task_ptr->progress(), ImVec2{});
 
         ImGui::End();
         return window;
