@@ -5,6 +5,7 @@
 #include "model/model.hpp"
 
 class ice_block : public usable_item {
+public:
     ice_block(std::size_t amount)
         : usable_item{
             "冰块",
