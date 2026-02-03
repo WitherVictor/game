@@ -90,7 +90,7 @@ int main() {
     ImGui_ImplOpenGL3_Init(backend_version);
 
     model model_obj;
-    view view_obj = model_obj;
+    view view_obj{model_obj};
 
     // 运行窗口循环
     while (!glfwWindowShouldClose(window)) {
