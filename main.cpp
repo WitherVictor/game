@@ -102,9 +102,13 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // 绘制游戏界面
         view_obj.draw();
 
+        // 绘制 ImGui 界面
         ImGui::Render();
+
+        // glfw 绘制窗口
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
