@@ -313,6 +313,7 @@ public:
             if (ImGui::Selectable(label.c_str())) {
                 item->use();
             }
+            ImGui::SetItemTooltip("%s", item->get_description().c_str());
         }
 
         ImGui::End();
