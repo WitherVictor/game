@@ -1,7 +1,7 @@
 #include "view/view.hpp"
 #include "model/model.hpp"
 
-#include "item/protein_bar.hpp"
+#include "item/food.hpp"
 #include <memory>
 
 int main() {

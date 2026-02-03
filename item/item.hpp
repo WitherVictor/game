@@ -10,21 +10,23 @@ struct item_info {
     std::size_t amount;
 };
 
+// 代表一个物品
+// 拥有名称，说明和数量
 class item {
 public:
-    item(const std::string& name, std::size_t amount, std::function<void()> use_effect)
-        : name_{name}, amount_{amount}, use_effect_{use_effect} {}
+    item(const std::string& name, const std::size_t amount, const std::string& description)
+        : name_{name}, amount_{amount}, description_{description} {}
 
-    std::string get_name() const {
+    const std::string& get_name() const {
         return name_;
     }
 
-    virtual std::string get_description() const {
-        return "这是虚拟物品的基类，按理来说你不应该看见这个";
+    const std::size_t get_amount() const {
+        return amount_;
     }
 
-    virtual std::size_t get_amount() const {
-        return amount_;
+    const std::string& get_description() const {
+        return description_;
     }
 
     item_info get_info() const {
@@ -35,27 +37,41 @@ public:
         };
     }
 
-    bool use() {
+    void add(std::size_t amount = 1) {
+        amount_++;
+    }
+
+    void minus(std::size_t amount = 1) {
+        amount_--;
+    }
+
+    virtual bool use() { return false; }
+
+    virtual ~item() = default;
+protected:
+    std::string name_;
+    std::size_t amount_;
+    std::string description_;
+};
+
+// 可使用物品
+// 使用后会产生某个效果
+class usable_item : public item {
+public:
+    usable_item(const std::string& name, const std::size_t amount, const std::string& description, std::function<void()> use_effect)
+        : item{name, amount, description}, use_effect_{use_effect} {}
+
+    virtual bool use() override {
         if (amount_ > 0) {
-            amount_--;
+            minus();
             use_effect_();
             return true;
         }
 
         return false;
     }
-
-    void add(std::size_t amount = 1) {
-        amount_++;
-    }
-
-    void remove(std::size_t amount = 1) {
-        amount_--;
-    }
 protected:
-    std::string name_;
     std::function<void()> use_effect_;
-    std::size_t amount_;
 };
 
 #endif // End of macro ITEMS_ITEM_HPP
