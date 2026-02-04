@@ -2,76 +2,51 @@
 #define ITEMS_ITEM_HPP
 
 #include <string>
-#include <functional>
 
-struct item_info {
-    std::string name;
-    std::string description;
-    std::size_t amount;
-};
+#include "item_id.hpp"
+#include "item_category.hpp"
 
 // 代表一个物品
 // 拥有名称，说明和数量
-class item {
-public:
-    item(const std::string& name, const std::size_t amount, const std::string& description)
-        : name_{name}, amount_{amount}, description_{description} {}
+struct item {
+    item(item_id id, const std::string& name, const std::string& description, const std::size_t amount)
+        : id{id}, name{name}, description{description}, amount{amount} {}
 
-    const std::string& get_name() const {
-        return name_;
+    virtual item_category get_type() const {
+        return item_category::none;
     }
 
-    const std::size_t get_amount() const {
-        return amount_;
-    }
+    bool is_food() const { return get_type() == item_category::food; };
+    bool is_drink() const { return get_type() == item_category::drink; };
 
-    const std::string& get_description() const {
-        return description_;
-    }
-
-    item_info get_info() const {
-        return {
-            .name = get_name(),
-            .description = get_description(),
-            .amount = get_amount()
-        };
-    }
-
-    void add(std::size_t amount = 1) {
-        amount_++;
-    }
-
-    void minus(std::size_t amount = 1) {
-        amount_--;
-    }
-
-    virtual bool use() { return false; }
-
-    virtual ~item() = default;
-protected:
-    std::string name_;
-    std::size_t amount_;
-    std::string description_;
+    item_id id = item_id::item;
+    std::string name = "物品";
+    std::string description = "按理来说你不应该看见这个。";
+    std::size_t amount = 1;
 };
 
-// 可使用物品
-// 使用后会产生某个效果
-class usable_item : public item {
-public:
-    usable_item(const std::string& name, const std::size_t amount, const std::string& description, std::function<void()> use_effect)
-        : item{name, amount, description}, use_effect_{use_effect} {}
+// 食物
+struct item_food : public item {
+    item_food(item_id id, const std::string& name, const std::string& description, const std::size_t amount, const std::size_t nutrition)
+        : item{id, name, description, amount}, nutrition{nutrition} {}
 
-    virtual bool use() override {
-        if (amount_ > 0) {
-            minus();
-            use_effect_();
-            return true;
-        }
-
-        return false;
+    virtual item_category get_type() const override {
+        return item_category::food;
     }
-protected:
-    std::function<void()> use_effect_;
+
+    std::size_t nutrition;
+};
+
+// 饮品
+struct item_drink : public item {
+    item_drink(item_id id, const std::string& name, const std::string& description, const std::size_t amount, const std::size_t hydration)
+        : item{id, name, description, amount}, hydration{hydration} {}
+
+    virtual item_category get_type() const override {
+        return item_category::drink;
+    }
+
+    std::size_t hydration;
 };
 
 #endif // End of macro ITEMS_ITEM_HPP

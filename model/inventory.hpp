@@ -2,34 +2,60 @@
 #define MODEL_INVENTORY_HPP
 
 #include "item/item.hpp"
+#include "item/item_id.hpp"
+#include "item/item_factory.hpp"
 
 #include <map>
 #include <memory>
 #include <ranges>
+#include <mutex>
+#include <shared_mutex>
 
 class inventory {
 public:
-    bool add_item(std::shared_ptr<item> item_ptr) {
-        if (items.size() >= capacity_)
-            return false;
-
-        auto iter = items.find(item_ptr->get_name());
-        if (iter != items.end()) {
-            iter->second->add(item_ptr->get_amount());
+    bool add_item(item_id id) {
+        std::unique_lock lock{mutex_};
+        auto result_iter = items_.find(id);
+        if (result_iter == items_.end() && items_.size() < capacity_) {
+            items_[id] = item_factory::instance().create(id);
+            return true;
         } else {
-            items[item_ptr->get_name()] = item_ptr;
+            items_[id]->amount++;
+            return true;
         }
 
-        return true;
+        return false;
+    }
+
+    bool remove_item(item_id id) {
+        std::unique_lock lock{mutex_};
+        auto result_iter = items_.find(id);
+        if (result_iter != items_.end()) {
+            result_iter->second->amount--;
+
+            if (result_iter->second->amount == 0)
+                items_.erase(result_iter);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool has_item(item_id id) {
+        std::shared_lock lock{mutex_};
+        return items_.find(id) != items_.end();
     }
 
     auto get_items() const {
-        return items
-                | std::views::transform([] (const auto& pair) { return pair.second; })
-                | std::ranges::to<std::vector<std::shared_ptr<item>>>();
+        std::shared_lock lock{mutex_};
+        return items_
+                | std::views::transform([] (const auto& pair) { return pair.second.get(); })
+                | std::ranges::to<std::vector<const item*>>();
     }
 private:
-    std::map<std::string, std::shared_ptr<item>> items;
+    mutable std::shared_mutex mutex_;
+    std::map<item_id, std::unique_ptr<item>> items_;
     std::size_t capacity_ = 8;
 };
 

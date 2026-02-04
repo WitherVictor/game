@@ -4,6 +4,7 @@
 #include <chrono>
 #include <vector>
 #include <memory>
+#include <mutex>
 
 #include "util/task.hpp"
 
@@ -15,16 +16,19 @@ public:
     }
 
     void add_task(std::shared_ptr<task> task_ptr) {
+        std::unique_lock lock{mutex_};
         observers_.push_back(task_ptr);
     }
 
     void update_all(std::chrono::milliseconds elapsed_time) {
+        std::shared_lock lock{mutex_};
         for (auto& observer : observers_) {
             observer->update(elapsed_time);
         }
     }
 
 private:
+    mutable std::shared_mutex mutex_;
     std::vector<std::shared_ptr<task>> observers_;
 };
 

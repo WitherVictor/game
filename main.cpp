@@ -2,10 +2,14 @@
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "view/view.hpp"
 
+#include <memory>
 #include <stdexcept>
+#include <thread>
 
+#include "model/task_manager.hpp"
+#include "view_model/player.hpp"
+#include "view/view.hpp"
 
 // 全局 glfw 错误处理回调函数
 static void glfw_error_callback(int error_code, const char* description) {
@@ -24,6 +28,35 @@ int main() {
     if (!glfwInit())
         throw std::runtime_error{"GLFW initialization failed!"};
 
+    // Decide GL+GLSL versions
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+    // GL ES 2.0 + GLSL 100 (WebGL 1.0)
+    auto backend_version = "#version 100";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+#elif defined(IMGUI_IMPL_OPENGL_ES3)
+    // GL ES 3.0 + GLSL 300 es (WebGL 2.0)
+    auto backend_version = "#version 300 es";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+#elif defined(__APPLE__)
+    // GL 3.2 + GLSL 150
+    auto backend_version = "#version 150";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+#else
+    // GL 3.0 + GLSL 130
+    auto backend_version = "#version 130";
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+#endif
+
     // 初始化窗口
     auto main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor());
     auto window = glfwCreateWindow(
@@ -35,36 +68,6 @@ int main() {
     );
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
-
-
-    // Decide GL+GLSL versions
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-        // GL ES 2.0 + GLSL 100 (WebGL 1.0)
-        auto backend_version = "#version 100";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(IMGUI_IMPL_OPENGL_ES3)
-        // GL ES 3.0 + GLSL 300 es (WebGL 2.0)
-        auto backend_version = "#version 300 es";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-#elif defined(__APPLE__)
-        // GL 3.2 + GLSL 150
-        auto backend_version = "#version 150";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
-#else
-        // GL 3.0 + GLSL 130
-        auto backend_version = "#version 130";
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-        //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
-#endif
 
     // 检查 ImGui 版本并创建上下文
     IMGUI_CHECKVERSION();
@@ -89,8 +92,25 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(backend_version);
 
-    model model_obj;
-    view view_obj{model_obj};
+    // 启动更新线程
+    std::jthread{[](std::stop_token st) {
+        // 每帧的时间
+        using namespace std::chrono_literals;
+        constexpr auto frame_rate = 16ms;
+
+        // 记录下一针的时间点
+        auto next_frame = std::chrono::steady_clock::now();
+
+        while (!st.stop_requested()) {
+            task_manager::instance().update_all(frame_rate);
+
+            // 推进一帧并等待直到下一帧
+            next_frame += frame_rate;
+            std::this_thread::sleep_until(next_frame);
+        }
+    }}.detach();
+
+    view view_obj;
 
     // 运行窗口循环
     while (!glfwWindowShouldClose(window)) {

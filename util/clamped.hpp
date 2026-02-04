@@ -1,8 +1,22 @@
 #pragma once
 
 #include <stdexcept>
+#include <concepts>
 
-#include "clamped_values.hpp"
+// 算术类型概念
+template <typename T>
+concept arithmetic = std::integral<T> || std::floating_point<T>;
+
+// 保存 clamped 所有数据的类型
+template <arithmetic T>
+struct clamped_values {
+    T min;
+    T max;
+
+    T now;
+
+    long double ratio;
+};
 
 // 将值限定在给定的上下限的类型
 // 要求底层类型必须为算术类型

@@ -2,14 +2,17 @@
 
 // STL
 #include <cstdio>
+#include <memory>
 #include <string>
 
 // ImGui
 #include "imgui.h"
+#include "imgui_internal.h"
 
 // Project
-#include "imgui_internal.h"
-#include "model/model.hpp"
+#include "view_model/player.hpp"
+#include "view_model/system.hpp"
+
 #include "color.hpp"
 #include "item/other.hpp"
 #include "model/task_manager.hpp"
@@ -35,9 +38,6 @@ public:
         ImGuiWindowFlags_AlwaysAutoResize
     };
 
-    view(model& model_)
-        : model_{model_} {}
-
     void draw() {
         ImGui::SetNextWindowPos(ImVec2{});
         const auto status_window = view::player_status();
@@ -51,39 +51,40 @@ public:
     // 绘制人物状态栏
     ImGuiWindow* player_status() {
         ImGui::Begin("人物状态", nullptr, default_window_config);
-
         auto window = ImGui::GetCurrentWindow();
 
+        // 获取玩家信息
+        const auto player_info = player_->get_player_info();
+
+        // 绘制生命条
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Red);
         ImGui::Text("%s", "生命");
         ImGui::SameLine();
-        const auto health_values = model_.player.health.values();
         ImGui::ProgressBar(
-            health_values.ratio,
+            player_info.health.ratio,
             ImVec2{},
-            std::to_string(health_values.now).c_str());
+            std::to_string(player_info.health.now).c_str());
         ImGui::PopStyleColor();
 
+        // 绘制饥饿条
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::Brown);
         ImGui::Text("%s", "饥饿");
         ImGui::SameLine();
-        const auto hunger_values = model_.player.hunger.values();
-        ImGui::ProgressBar(hunger_values.ratio, ImVec2{});
+        ImGui::ProgressBar(player_info.hunger.ratio, ImVec2{});
         ImGui::PopStyleColor();
 
+        // 绘制口渴条
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Color::LightBlue);
         ImGui::Text("%s", "口渴");
         ImGui::SameLine();
-        const auto thirst_values = model_.player.thirst.values();
-        ImGui::ProgressBar(thirst_values.ratio, ImVec2{}, std::to_string(thirst_values.now).c_str());
+        ImGui::ProgressBar(player_info.thirst.ratio, ImVec2{});
         ImGui::PopStyleColor();
 
         ImGui::End();
-
         return window;
     }
 
-    // 绘制人物侧边栏
+    // 绘制地点侧边栏
     ImGuiWindow* side_menu() {
         ImGui::Begin("空间站", nullptr, default_window_config);
 
@@ -138,8 +139,8 @@ public:
     ImGuiWindow* mechgen() {
         static auto task_ptr = [this]() {
             auto ptr = std::make_shared<task>([this] {
-                if (model_.player.hunger.try_minus()) {
-                    model_.electricity.power.force_add();
+                if (player_->get_hunger().try_minus()) {
+                    system_->get_electricity().force_add();
                 }
             }, 1s);
 
@@ -175,7 +176,7 @@ public:
 
         ImGui::Text("%s", "电力");
         ImGui::SameLine();
-        const auto electricity = model_.electricity.power.values();
+        const auto electricity = system_->get_electricity().values();
         ImGui::ProgressBar(
             electricity.ratio,
             ImVec2{},
@@ -190,18 +191,15 @@ public:
         ImGui::Begin("储物间", nullptr, default_window_config);
         auto current_window = ImGui::GetCurrentWindow();
 
-        auto items = model_.inventory.get_items();
+        auto items = player_->get_inventory_items();
         constexpr std::size_t line_length = 8;
 
-        for (auto& item : items) {
-            if (item->get_amount() == 0)
-                continue;
-
-            auto label = std::format("{} x{}", item->get_name(), item->get_amount());
+        for (auto item : items) {
+            auto label = std::format("{} x{}", item->name, item->amount);
             if (ImGui::Selectable(label.c_str())) {
-                item->use();
+                player_->use(item);
             }
-            ImGui::SetItemTooltip("%s", item->get_description().c_str());
+            ImGui::SetItemTooltip("%s", item->description.c_str());
         }
 
         ImGui::End();
@@ -211,9 +209,7 @@ public:
     ImGuiWindow* collapsed() {
         static auto ice_task_ptr = [this] {
             auto ptr = std::make_shared<task>([this] {
-                auto& player = model_.player;
-                player.hunger.force_minus(10);
-                model_.inventory.add_item(std::make_shared<ice_block>(1));
+                player_->dig_ice();
             }, 60s);
 
             task_manager::instance().add_task(ptr);
@@ -222,9 +218,7 @@ public:
 
         static auto metal_task_ptr = [this] {
             auto ptr = std::make_shared<task>([this] {
-                auto& player = model_.player;
-                player.hunger.force_minus(25);
-                model_.inventory.add_item(std::make_shared<metal_scrap>(1));
+                player_->collect_metal_scrap();
             }, 60s);
 
             task_manager::instance().add_task(ptr);
@@ -254,5 +248,6 @@ public:
         return window;
     }
 private:
-    model& model_;
+    std::unique_ptr<view_model::player> player_ = std::make_unique<view_model::player>();
+    std::unique_ptr<view_model::system> system_ = std::make_unique<view_model::system>();
 };
