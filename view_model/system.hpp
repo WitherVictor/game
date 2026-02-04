@@ -9,8 +9,12 @@
 namespace view_model {
 class system {
 public:
-    atomic_clamped<std::size_t>& get_electricity() {
-        return electricity_->power;
+    auto get_electricity_values() {
+        return electricity_->power.values();
+    }
+
+    void force_restore_power(const std::size_t delta = 1) {
+        electricity_->power.force_add(delta);
     }
 private:
     std::unique_ptr<electricity> electricity_ = std::make_unique<electricity>();

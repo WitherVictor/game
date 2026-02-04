@@ -4,8 +4,6 @@
 #include <cstddef>
 #include <memory>
 
-#include "item/food.hpp"
-#include "item/drink.hpp"
 #include "item/item_id.hpp"
 #include "model/player.hpp"
 #include "util/atomic_clamped.hpp"
@@ -31,8 +29,8 @@ public:
         return player_->inventory.get_items();
     }
 
-    auto& get_hunger() {
-        return player_->hunger;
+    bool try_consume_hunger(const std::size_t delta = 1) {
+        return player_->hunger.try_minus(delta);
     }
 
     void dig_ice() {

@@ -47,7 +47,7 @@ public:
         return items_.find(id) != items_.end();
     }
 
-    auto get_items() const {
+    const auto get_items() const {
         std::shared_lock lock{mutex_};
         return items_
                 | std::views::transform([] (const auto& pair) { return pair.second.get(); })

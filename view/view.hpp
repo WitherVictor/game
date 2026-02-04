@@ -14,7 +14,6 @@
 #include "view_model/system.hpp"
 
 #include "color.hpp"
-#include "item/other.hpp"
 #include "model/task_manager.hpp"
 
 using namespace std::chrono_literals;
@@ -139,8 +138,8 @@ public:
     ImGuiWindow* mechgen() {
         static auto task_ptr = [this]() {
             auto ptr = std::make_shared<task>([this] {
-                if (player_->get_hunger().try_minus()) {
-                    system_->get_electricity().force_add();
+                if (player_->try_consume_hunger()) {
+                    system_->force_restore_power();
                 }
             }, 1s);
 
@@ -176,7 +175,7 @@ public:
 
         ImGui::Text("%s", "电力");
         ImGui::SameLine();
-        const auto electricity = system_->get_electricity().values();
+        const auto electricity = system_->get_electricity_values();
         ImGui::ProgressBar(
             electricity.ratio,
             ImVec2{},

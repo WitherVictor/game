@@ -3,12 +3,10 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include <memory>
 #include <stdexcept>
 #include <thread>
 
 #include "model/task_manager.hpp"
-#include "view_model/player.hpp"
 #include "view/view.hpp"
 
 // 全局 glfw 错误处理回调函数
