@@ -13,25 +13,25 @@
 
 class inventory {
 public:
-    bool add_item(item_id id) {
+    bool add_item(item_id id, const std::size_t amount = 1) {
         std::unique_lock lock{mutex_};
         auto result_iter = items_.find(id);
-        if (result_iter == items_.end() && items_.size() < capacity_) {
-            items_[id] = item_factory::instance().create(id);
+        if (result_iter == items_.end() && !is_full()) {
+            items_[id] = item_factory::instance().create(id, amount);
             return true;
-        } else {
-            items_[id]->amount++;
+        } else if (result_iter != items_.end() ){
+            items_[id]->amount += amount;
             return true;
         }
 
         return false;
     }
 
-    bool remove_item(item_id id) {
+    bool remove_item(item_id id, const std::size_t amount = 1) {
         std::unique_lock lock{mutex_};
         auto result_iter = items_.find(id);
-        if (result_iter != items_.end()) {
-            result_iter->second->amount--;
+        if (result_iter != items_.end() && result_iter->second->amount >= amount) {
+            result_iter->second->amount -= amount;
 
             if (result_iter->second->amount == 0)
                 items_.erase(result_iter);
@@ -45,6 +45,10 @@ public:
     bool has_item(item_id id) {
         std::shared_lock lock{mutex_};
         return items_.find(id) != items_.end();
+    }
+
+    bool is_full() const {
+        return items_.size() == capacity_;
     }
 
     const auto get_items() const {
