@@ -47,6 +47,13 @@ public:
         return items_.find(id) != items_.end();
     }
 
+    bool has_item(item_id id, const std::size_t amount) {
+        std::shared_lock lock{mutex_};
+
+        auto iter = items_.find(id);
+        return iter != items_.end() && iter->second->amount >= amount;
+    }
+
     bool is_full() const {
         return items_.size() == capacity_;
     }
