@@ -8,7 +8,6 @@
 #include <imgui_impl_opengl3.h>
 
 // nlohmann json
-#include <iostream>
 #include <nlohmann/json.hpp>
 
 #include <memory>
