@@ -77,7 +77,7 @@ void register_item_factory() {
             new_item_ptr->description = item_data.at("description").get<std::string>();
             new_item_ptr->stackable = item_data.at("stackable").get<bool>();
 
-            // 为属性数组预留空间
+            // 若存在属性，则为物品读取属性
             if (item_data.contains("attributes")) {
                 auto attribute_json = item_data.at("attributes");
                 new_item_ptr->attributes.reserve(attribute_json.size());
