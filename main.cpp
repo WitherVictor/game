@@ -1,17 +1,104 @@
-#include "GLFW/glfw3.h"
+// glfw
+#include <GLFW/glfw3.h>
 
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+// ImGui backends
+#include <filesystem>
+#include <fstream>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
+// nlohmann json
+#include <iostream>
+#include <nlohmann/json.hpp>
+
+#include <memory>
+#include <ranges>
 #include <stdexcept>
 #include <thread>
 
+#include "item/attribute/hydration.hpp"
 #include "model/task_manager.hpp"
 #include "view/view.hpp"
+
+#include "item/factory.hpp"
+
+#include "item/attribute/factory.hpp"
+#include "item/attribute/nutrition.hpp"
+#include "item/attribute/stackable.hpp"
 
 // 全局 glfw 错误处理回调函数
 static void glfw_error_callback(int error_code, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error_code, description);
+}
+
+// 手动注册物品属性
+void register_attribute_factory() {
+    auto& factory = attribute_factory::instance();
+
+    factory.register_creator("nutrition", [] {
+        return std::make_unique<attribute_nutrition>();
+    });
+
+    factory.register_creator("hydration", [] {
+        return std::make_unique<attribute_hydration>();
+    });
+
+    factory.register_creator("stackable", [] {
+        return std::make_unique<attribute_stackable>();
+    });
+}
+
+void register_item_factory() {
+    // 这名字太长了有点
+    namespace fs = std::filesystem;
+    using json = nlohmann::json;
+
+    // 物品数据存放路径
+    const fs::path data_path = fs::current_path().parent_path() / "item" / "data";
+
+    // 筛选 item/data 目录下的所有物品的 json 数据文件
+    auto json_files = fs::recursive_directory_iterator(data_path)
+                        | std::views::filter([] (const auto& entry) { 
+                            return fs::is_regular_file(entry.status()) && entry.path().extension() == ".json"; })
+                        | std::views::transform([] (const auto& entry) { return entry.path(); })
+                        | std::ranges::to<std::vector<fs::path>>();
+
+    // 注册物品信息到工厂内
+    auto& item_factory = item_factory::instance();
+    for (const auto& path : json_files) {
+        std::ifstream ifs{path};
+        json item_data = json::parse(ifs);
+
+        item_factory.register_creator(item_data.at("id").get<std::string>(), [item_data] {
+            // 设置物品 ID，名字与描述文本
+            auto new_item_ptr = std::make_unique<item>();
+            new_item_ptr->id = item_data.at("id").get<std::string>();
+            new_item_ptr->name = item_data.at("name").get<std::string>();
+            new_item_ptr->description = item_data.at("description").get<std::string>();
+            new_item_ptr->stackable = item_data.at("stackable").get<bool>();
+
+            // 为属性数组预留空间
+            if (item_data.contains("attributes")) {
+                auto attribute_json = item_data.at("attributes");
+                new_item_ptr->attributes.reserve(attribute_json.size());
+
+                // 遍历数据为物品注册属性
+                auto& attribute_factory = attribute_factory::instance();
+                for (const auto& attribute_data : attribute_json) {
+                    // 从 JSON 获取属性名并构造为属性对象
+                    auto attribute_type = attribute_data.at("type").get<std::string>();
+                    auto new_attribute = attribute_factory.create(attribute_type);
+
+                    // 初始化属性数据并放入物品内
+                    new_attribute->from_json(attribute_data);
+                    new_item_ptr->attributes.push_back(std::move(new_attribute));
+                }
+            }
+
+            // 返回构造完成的新物品
+            return new_item_ptr;
+        });
+    }
 }
 
 int main() {
@@ -107,6 +194,10 @@ int main() {
             std::this_thread::sleep_until(next_frame);
         }
     }}.detach();
+
+    // 按顺序注册物品属性和物品
+    register_attribute_factory();
+    register_item_factory();
 
     view view_obj;
 

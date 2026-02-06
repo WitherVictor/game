@@ -1,0 +1,6 @@
+{
+    "id": "metal_scrap",
+    "name": "金属碎片",
+    "description": "一片较小的金属碎片，非常适合在适量的敲打下制作成其他物品。",
+    "stackable": true
+}

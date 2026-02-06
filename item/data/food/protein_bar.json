@@ -1,0 +1,9 @@
+{
+    "id": "protein_bar",
+    "name": "蛋白棒",
+    "description": "一根含有人体所需营养元素的蛋白棒, 一日三根就能保证一个成年人的正常消耗。",
+    "stackable": true,
+    "attributes": [
+        { "type": "nutrition", "nutrition": 800 }
+    ]
+}

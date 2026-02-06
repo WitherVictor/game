@@ -1,0 +1,9 @@
+{
+    "id": "ice_block",
+    "name": "冰块",
+    "description": "一颗内部含有一些杂质的冰块，为了安全着想，最好融化煮沸后饮用。",
+    "stackable": true,
+    "attributes": [
+        { "type": "hydration", "hydration": 100 }
+    ]
+}

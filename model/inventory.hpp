@@ -2,22 +2,26 @@
 #define MODEL_INVENTORY_HPP
 
 #include "item/item.hpp"
-#include "item/item_id.hpp"
-#include "item/item_factory.hpp"
+#include "item/factory.hpp"
 
-#include <map>
 #include <memory>
 #include <ranges>
 #include <mutex>
 #include <shared_mutex>
+#include <unordered_map>
 
 class inventory {
 public:
-    bool add_item(item_id id, const std::size_t amount = 1) {
+    bool add_item(const std::string& id, const std::size_t amount = 1) {
         std::unique_lock lock{mutex_};
+
         auto result_iter = items_.find(id);
         if (result_iter == items_.end() && !is_full()) {
-            items_[id] = item_factory::instance().create(id, amount);
+            items_[id] = item_factory::instance().create(id);
+            if (items_[id]->stackable)
+                items_[id]->amount = amount;
+            else
+                add_item(id, amount - 1);
             return true;
         } else if (result_iter != items_.end() ){
             items_[id]->amount += amount;
@@ -27,8 +31,9 @@ public:
         return false;
     }
 
-    bool remove_item(item_id id, const std::size_t amount = 1) {
+    bool remove_item(const std::string& id, const std::size_t amount = 1) {
         std::unique_lock lock{mutex_};
+    
         auto result_iter = items_.find(id);
         if (result_iter != items_.end() && result_iter->second->amount >= amount) {
             result_iter->second->amount -= amount;
@@ -42,12 +47,12 @@ public:
         }
     }
 
-    bool has_item(item_id id) {
+    bool has_item(const std::string& id) {
         std::shared_lock lock{mutex_};
         return items_.find(id) != items_.end();
     }
 
-    bool has_item(item_id id, const std::size_t amount) {
+    bool has_item(const std::string& id, const std::size_t amount) {
         std::shared_lock lock{mutex_};
 
         auto iter = items_.find(id);
@@ -66,7 +71,7 @@ public:
     }
 private:
     mutable std::shared_mutex mutex_;
-    std::map<item_id, std::unique_ptr<item>> items_;
+    std::unordered_map<std::string, std::unique_ptr<item>> items_;
     std::size_t capacity_ = 8;
 };
 

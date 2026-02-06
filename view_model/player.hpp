@@ -4,9 +4,11 @@
 #include <cstddef>
 #include <memory>
 
-#include "item/item_id.hpp"
 #include "model/player.hpp"
 #include "util/atomic_clamped.hpp"
+
+#include "item/attribute/nutrition.hpp"
+#include "item/attribute/hydration.hpp"
 
 struct player_info {
     clamped_values<std::size_t> health;
@@ -35,33 +37,35 @@ public:
 
     void dig_ice() {
         player_->hunger.force_minus(10);
-        player_->inventory.add_item(item_id::ice_block);
+        player_->inventory.add_item("ice_block");
     }
 
     void collect_metal_scrap() {
         player_->hunger.force_minus(25);
-        player_->inventory.add_item(item_id::metal_scrap);
+        player_->inventory.add_item("metal_scrap");
     }
 
     void use(const item* item)  {
-        if (item->is_food())
-            eat(dynamic_cast<const item_food*>(item));
-        else if (item->is_drink())
-            drink(dynamic_cast<const item_drink*>(item));
+        if (!player_->inventory.has_item(item->id))
+            return;
+        
+        if (item->has_attribute<attribute_nutrition>())
+            eat(item);
+
+        if (item->has_attribute<attribute_hydration>())
+            drink(item);
     }
 
-    void eat(const item_food* item) {
-        if (player_->inventory.has_item(item->id)) {
-            player_->hunger.force_add(item->nutrition);
-            player_->inventory.remove_item(item->id);
-        }
+    void eat(const item* item) {
+        auto item_attr = item->get_attribute<attribute_nutrition>();
+        player_->hunger.force_add(item_attr->nutrition);
+        player_->inventory.remove_item(item->id);
     }
 
-    void drink(const item_drink* item) {
-        if (player_->inventory.has_item(item->id)) {
-            player_->thirst.force_add(item->hydration);
-            player_->inventory.remove_item(item->id);
-        }
+    void drink(const item* item) {
+        auto item_attr = item->get_attribute<attribute_hydration>();
+        player_->thirst.force_add(item_attr->hydration);
+        player_->inventory.remove_item(item->id);
     }
 private:
     std::unique_ptr<model::player> player_ = std::make_unique<model::player>();

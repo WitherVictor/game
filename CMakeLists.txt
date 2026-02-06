@@ -13,16 +13,25 @@ FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
     GIT_TAG 3.4
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
     GIT_TAG v1.92.5
+    GIT_SHALLOW TRUE
+)
+
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.12.0
+    GIT_SHALLOW TRUE
 )
 
 # 安装依赖 glfw imgui
-FetchContent_MakeAvailable(glfw imgui)
+FetchContent_MakeAvailable(glfw imgui json)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -52,7 +61,8 @@ target_sources(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         glfw
-        opengl32   
+        opengl32
+        nlohmann_json::nlohmann_json
 )
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
