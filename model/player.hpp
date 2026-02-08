@@ -7,18 +7,19 @@
 // Project
 #include "model/task_manager.hpp"
 #include "util/atomic_clamped.hpp"
+#include "util/task/timer_task.hpp"
 #include "inventory.hpp"
 
 namespace model {
 struct player {
     // 构造时，注册一部分任务
     player() {
-        task_manager::instance().add_task(std::make_shared<task>([this] {
+        task_manager::instance().add_task(std::make_shared<timer_task>([this] {
             hunger.force_minus();
             thirst.force_minus();
         }, 1s, true));
 
-        task_manager::instance().add_task(std::make_shared<task>([this] {
+        task_manager::instance().add_task(std::make_shared<timer_task>([this] {
             health.force_add();
         }, 60s, true));
     }

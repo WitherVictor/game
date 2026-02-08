@@ -10,6 +10,7 @@
 #include "imgui_internal.h"
 
 // Project
+#include "util/task/timer_task.hpp"
 #include "view_model/player.hpp"
 #include "view_model/system.hpp"
 
@@ -137,7 +138,7 @@ public:
 
     ImGuiWindow* mechgen() {
         static auto task_ptr = [this]() {
-            auto ptr = std::make_shared<task>([this] {
+            auto ptr = std::make_shared<timer_task>([this] {
                 if (player_->try_consume_hunger()) {
                     system_->force_restore_power();
                 }
@@ -152,7 +153,7 @@ public:
 
         static bool is_checked = false;
         if (ImGui::Checkbox("人力发电机", &is_checked)) {
-            task_ptr->reverse_condition();
+            is_checked ? task_ptr->start() : task_ptr->stop();
         }
 
         ImGui::SameLine();
@@ -207,7 +208,7 @@ public:
 
     ImGuiWindow* collapsed() {
         static auto ice_task_ptr = [this] {
-            auto ptr = std::make_shared<task>([this] {
+            auto ptr = std::make_shared<timer_task>([this] {
                 player_->dig_ice();
             }, 60s);
 
@@ -216,7 +217,7 @@ public:
         }();
 
         static auto metal_task_ptr = [this] {
-            auto ptr = std::make_shared<task>([this] {
+            auto ptr = std::make_shared<timer_task>([this] {
                 player_->collect_metal_scrap();
             }, 60s);
 

@@ -47,12 +47,12 @@ public:
         }
     }
 
-    bool has_item(const std::string& id) {
+    bool has_item(const std::string& id) const {
         std::shared_lock lock{mutex_};
         return items_.find(id) != items_.end();
     }
 
-    bool has_item(const std::string& id, const std::size_t amount) {
+    bool has_item(const std::string& id, const std::size_t amount) const {
         std::shared_lock lock{mutex_};
 
         auto iter = items_.find(id);
