@@ -13,6 +13,8 @@
 #include "util/task/timer_task.hpp"
 #include "view_model/player.hpp"
 #include "view_model/system.hpp"
+#include "craft/recipe_registry.hpp"
+#include "craft/craft_system.hpp"
 
 #include "color.hpp"
 #include "model/task_manager.hpp"
@@ -26,6 +28,7 @@ enum class main_window_t {
     spawn_storage,
     engi_mech,
     engi_powerstore,
+    engi_craft,
 };
 
 class view {
@@ -117,6 +120,10 @@ public:
             current_window = main_window_t::engi_powerstore;
         }
 
+        if (ImGui::Selectable("工作间")) {
+            current_window = main_window_t::engi_craft;
+        }
+
         ImGui::End();
 
         // 绘制主窗口
@@ -125,6 +132,8 @@ public:
                 return mechgen();
             case main_window_t::engi_powerstore:
                 return powerstore();
+            case main_window_t::engi_craft:
+                return craft();
             case main_window_t::spawn_storage:
                 return storage();
             case main_window_t::spawn_collapsed:
@@ -243,6 +252,14 @@ public:
 
         ImGui::SameLine();
         ImGui::ProgressBar(metal_task_ptr->progress(), ImVec2{});
+
+        ImGui::End();
+        return window;
+    }
+
+    ImGuiWindow* craft() {
+        ImGui::Begin("工作台", nullptr, default_window_config);
+        auto window = ImGui::GetCurrentWindow();
 
         ImGui::End();
         return window;

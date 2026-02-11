@@ -3,7 +3,8 @@
 
 #include "model/craft/recipe.hpp"
 #include "model/inventory.hpp"
-#include "util/task.hpp"
+#include "util/task/task.hpp"
+#include "util/task/timer_task.hpp"
 
 class craft_system {
 public:
@@ -28,7 +29,7 @@ public:
                 inventory.add_item(product.item_id, product.amount);
 
         // 否则创建任务
-        auto task_ptr = std::make_shared<task>([&recipe, &inventory] {
+        auto task_ptr = std::make_shared<timer_task>([&recipe, &inventory] {
             for (const auto& product : recipe.outputs)
                 inventory.add_item(product.item_id, product.amount);
         }, recipe.duration);

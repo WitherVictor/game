@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <unordered_map>
+#include <ranges>
 
 #include "model/craft/recipe.hpp"
 
@@ -24,6 +25,12 @@ public:
             return &iter->second;
 
         throw std::runtime_error{"Recipe registry trying to get non-exist recipe! Recipe ID: " + id};
+    }
+
+    const std::vector<const recipe*> get_all() {
+        return recipes
+                | std::views::transform([](const auto& pair) { return &pair.second; })
+                | std::ranges::to<std::vector<const recipe*>>();
     }
 private:
     std::unordered_map<std::string, recipe> recipes;

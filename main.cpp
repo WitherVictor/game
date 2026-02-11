@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <thread>
 
+#include "imgui.h"
 #include "item/attribute/hydration.hpp"
 #include "model/task_manager.hpp"
 #include "view/view.hpp"
@@ -160,6 +161,7 @@ int main() {
     // 创建 IO 并启用键盘导航
     auto& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // 添加中文字符集
     io.Fonts->AddFontFromFileTTF(
