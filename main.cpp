@@ -235,7 +235,7 @@ int main() {
             // 左上 20%，左下 80%
             ImGuiID dock_left_top;
             ImGuiID dock_left_bottom = dock_left;
-            constexpr float left_top_size = 0.2f;
+            constexpr float left_top_size = 0.25f;
             ImGui::DockBuilderSplitNode(dock_left_bottom, ImGuiDir_Up, left_top_size, &dock_left_top, &dock_left_bottom);
 
             // 将右侧也分割为上下两部分
