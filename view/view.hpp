@@ -41,20 +41,10 @@ public:
         ImGuiWindowFlags_AlwaysAutoResize
     };
 
-    void draw() {
-        ImGui::SetNextWindowPos(ImVec2{});
-        const auto status_window = view::player_status();
-        ImGui::SetNextWindowPos({
-            status_window->Pos.x,
-            status_window->Size.y
-        });
-        view::side_menu();
-    }
-
     // 绘制人物状态栏
-    ImGuiWindow* player_status() {
-        ImGui::Begin("人物状态", nullptr, default_window_config);
-        auto window = ImGui::GetCurrentWindow();
+    void player_status() {
+        constexpr auto window_name = "人物状态";
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
         // 获取玩家信息
         const auto player_info = player_->get_player_info();
@@ -84,19 +74,12 @@ public:
         ImGui::PopStyleColor();
 
         ImGui::End();
-        return window;
     }
 
     // 绘制地点侧边栏
-    ImGuiWindow* side_menu() {
-        ImGui::Begin("空间站", nullptr, default_window_config);
-
-        auto pos = ImGui::GetWindowPos();
-        auto size = ImGui::GetWindowSize();
-        ImGui::SetNextWindowPos({
-            pos.x + size.x,
-            pos.y,
-        });
+    void side_menu() {
+        constexpr auto window_name = "空间站";
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
         static auto current_window = main_window_t::none;
         ImGui::Text("休眠舱");
@@ -141,11 +124,12 @@ public:
             case main_window_t::none:
                 [[fallthrough]];
             default:
-                return nullptr;
+                return;
         }
     }
 
-    ImGuiWindow* mechgen() {
+    void mechgen() {
+        constexpr auto window_name = "主界面";
         static auto task_ptr = [this]() {
             auto ptr = std::make_shared<timer_task>([this] {
                 if (player_->try_consume_hunger()) {
@@ -157,8 +141,7 @@ public:
             return ptr;
         }();
 
-        ImGui::Begin("机械发电室", nullptr, default_window_config);
-        auto window_ptr = ImGui::GetCurrentWindow();;
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
         static bool is_checked = false;
         if (ImGui::Checkbox("人力发电机", &is_checked)) {
@@ -175,14 +158,13 @@ public:
         ImGui::SetItemTooltip("%s", "每秒获得 1 点电力，消耗饥饿值。");
 
         ImGui::End();
-
-        return window_ptr;
     }
 
-    ImGuiWindow* powerstore() {
-        ImGui::Begin("电力存储室", nullptr, default_window_config);
-        auto window_ptr = ImGui::GetCurrentWindow();
+    void powerstore() {
+        constexpr auto window_name = "主界面";
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
+        // 绘制当前电量
         ImGui::Text("%s", "电力");
         ImGui::SameLine();
         const auto electricity = system_->get_electricity_values();
@@ -192,17 +174,17 @@ public:
             std::format("{} KJ", electricity.now).c_str());
 
         ImGui::End();
-
-        return window_ptr;
     }
 
-    ImGuiWindow* storage() {
-        ImGui::Begin("储物间", nullptr, default_window_config);
-        auto current_window = ImGui::GetCurrentWindow();
+    void storage() {
+        constexpr auto window_name = "主界面";
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
+        // 获取物品栏所有物品
         auto items = player_->get_inventory_items();
         constexpr std::size_t line_length = 8;
 
+        // 绘制所有物品
         for (auto item : items) {
             auto label = std::format("{} x{}", item->name, item->amount);
             if (ImGui::Selectable(label.c_str())) {
@@ -212,10 +194,10 @@ public:
         }
 
         ImGui::End();
-        return current_window;
     }
 
-    ImGuiWindow* collapsed() {
+    void collapsed() {
+        constexpr auto window_name = "主界面";
         static auto ice_task_ptr = [this] {
             auto ptr = std::make_shared<timer_task>([this] {
                 player_->dig_ice();
@@ -234,8 +216,7 @@ public:
             return ptr;
         }();
 
-        ImGui::Begin("已经坍塌的房间", nullptr, default_window_config);
-        auto window = ImGui::GetCurrentWindow();
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
         static bool ice_is_checked = false;
         if (ImGui::Checkbox("采集冻结的冰块", &ice_is_checked)) {
@@ -254,15 +235,13 @@ public:
         ImGui::ProgressBar(metal_task_ptr->progress(), ImVec2{});
 
         ImGui::End();
-        return window;
     }
 
-    ImGuiWindow* craft() {
-        ImGui::Begin("工作台", nullptr, default_window_config);
-        auto window = ImGui::GetCurrentWindow();
+    void craft() {
+        constexpr auto window_name = "主界面";
+        ImGui::Begin(window_name, nullptr, default_window_config);
 
         ImGui::End();
-        return window;
     }
 private:
     std::unique_ptr<view_model::player> player_ = std::make_unique<view_model::player>();

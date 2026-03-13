@@ -16,6 +16,7 @@
 #include <thread>
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "item/attribute/hydration.hpp"
 #include "model/task_manager.hpp"
 #include "view/view.hpp"
@@ -212,8 +213,54 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // 获取主视口并为停靠空间生成唯一 ID
+        ImGuiViewport* main_view_port = ImGui::GetMainViewport();
+        constexpr auto dock_space_name = "MainDockSpace";
+        ImGuiID main_dock_space_id = ImGui::GetID(dock_space_name);
+
+        // 若停靠空间不存在，则创建固定布局
+        if (ImGui::DockBuilderGetNode(main_dock_space_id) == nullptr) {
+            // 将根节点设置为整个窗口大小
+            ImGui::DockBuilderAddNode(main_dock_space_id, ImGuiDockNodeFlags_DockSpace);
+            ImGui::DockBuilderSetNodeSize(main_dock_space_id, main_view_port->Size);
+
+            // 将根节点分割为左右两部分
+            // 左侧 20%，右侧 80%
+            ImGuiID dock_main = main_dock_space_id;
+            ImGuiID dock_left;
+            constexpr float left_side_size = 0.2f;
+            ImGui::DockBuilderSplitNode(dock_main, ImGuiDir_Left, left_side_size, &dock_left, &dock_main);
+
+            // 将左侧分割为上下两部分
+            // 左上 20%，左下 80%
+            ImGuiID dock_left_top;
+            ImGuiID dock_left_bottom = dock_left;
+            constexpr float left_top_size = 0.2f;
+            ImGui::DockBuilderSplitNode(dock_left_bottom, ImGuiDir_Up, left_top_size, &dock_left_top, &dock_left_bottom);
+
+            // 将右侧也分割为上下两部分
+            // 右上 20%，右下 80%
+            ImGuiID dock_right_top;
+            ImGuiID dock_right_bottom = dock_main;
+            constexpr float right_top_size = 0.2f;
+            ImGui::DockBuilderSplitNode(dock_right_bottom, ImGuiDir_Up, right_top_size, &dock_right_top, &dock_right_bottom);
+
+            // 将窗口分配到各个区域
+            constexpr auto status_name = "人物状态";
+            constexpr auto area_name = "空间站";
+            constexpr auto window_name = "主界面";
+
+            ImGui::DockBuilderDockWindow(status_name, dock_left_top);
+            ImGui::DockBuilderDockWindow(area_name, dock_left_bottom);
+            ImGui::DockBuilderDockWindow(window_name, dock_right_bottom);
+        }
+
+        // 每帧渲染停靠空间
+        ImGui::DockSpaceOverViewport(main_dock_space_id, main_view_port, ImGuiDockNodeFlags_PassthruCentralNode);
+
         // 绘制游戏界面
-        view_obj.draw();
+        view_obj.player_status();
+        view_obj.side_menu();
 
         // 绘制 ImGui 界面
         ImGui::Render();
