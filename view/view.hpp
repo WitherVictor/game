@@ -124,6 +124,9 @@ public:
             case main_window_t::none:
                 [[fallthrough]];
             default:
+                constexpr auto main_window_name = "主界面";
+                ImGui::Begin(main_window_name, nullptr, default_window_config);
+                ImGui::End();
                 return;
         }
     }
